@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/app_user.dart';
 import '../../providers/auth_providers.dart';
+import '../../providers/incident_providers.dart';
+import '../../services/seed_data.dart';
+import '../../widgets/error_view.dart';
 import '../../widgets/loading_view.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -18,14 +22,10 @@ class ProfileScreen extends ConsumerWidget {
       // .when picks a widget for each state: data, loading, or error.
       body: profile.when(
         loading: () => const LoadingView(),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              'Could not load your profile.\n$error',
-              textAlign: TextAlign.center,
-            ),
-          ),
+        error: (error, _) => ErrorView(
+          message: 'Could not load your profile.',
+          error: error,
+          onRetry: () => ref.invalidate(currentUserProfileProvider),
         ),
         data: (user) {
           // Briefly null while signing out; the router will move us away.
@@ -96,6 +96,12 @@ class _ProfileContent extends StatelessWidget {
           icon: const Icon(Icons.logout),
           label: const Text('Sign out'),
         ),
+        // kDebugMode is false in release builds, so real users never
+        // see this developer tool.
+        if (kDebugMode) ...[
+          const SizedBox(height: 32),
+          _SeedDataButton(user: user),
+        ],
       ],
     );
   }
@@ -125,6 +131,71 @@ class _RoleBadge extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
       ),
+    );
+  }
+}
+
+/// DEBUG ONLY: fills the database with 8 sample reports for demos/testing.
+class _SeedDataButton extends ConsumerStatefulWidget {
+  const _SeedDataButton({required this.user});
+
+  final AppUser user;
+
+  @override
+  ConsumerState<_SeedDataButton> createState() => _SeedDataButtonState();
+}
+
+class _SeedDataButtonState extends ConsumerState<_SeedDataButton> {
+  bool _isSeeding = false;
+
+  Future<void> _seed() async {
+    setState(() => _isSeeding = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final count = await seedSampleIncidents(
+        ref.read(incidentRepositoryProvider),
+        widget.user,
+      );
+      messenger.showSnackBar(
+        SnackBar(content: Text('Added $count sample reports')),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Could not add sample reports: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSeeding = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Developer tools (debug builds only)',
+          style: Theme.of(context)
+              .textTheme
+              .labelSmall
+              ?.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: _isSeeding ? null : _seed,
+          icon: _isSeeding
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.dataset_outlined),
+          label: const Text('Add 8 sample reports'),
+        ),
+      ],
     );
   }
 }
