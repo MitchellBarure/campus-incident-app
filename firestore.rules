@@ -1,0 +1,124 @@
+rules_version = '2';
+
+// Security rules for the Campus Incident app.
+// The app hides buttons by role, but these rules are what actually
+// protect the data: they run on Google's servers and can't be bypassed
+// by a modified app.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Helpers ----------
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Reads the caller's own profile to check their role.
+    function isStaff() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "staff";
+    }
+
+    // The fields an update is trying to change.
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    function isValidStatus(status) {
+      return status in ["submitted", "inProgress", "resolved"];
+    }
+
+    function isValidCategory(category) {
+      return category in ["facilities", "water", "electricity", "furniture",
+                          "sanitation", "safety", "other"];
+    }
+
+    // ---------- users/{uid} ----------
+
+    match /users/{uid} {
+      // You can read your own profile; staff can read everyone's.
+      allow read: if isSignedIn() && (request.auth.uid == uid || isStaff());
+
+      // Everyone signs up as a student. Staff are promoted in the Console.
+      allow create: if isSignedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == "student"
+        && request.resource.data.keys().hasOnly(["name", "email", "role", "createdAt"]);
+
+      // You may edit your own profile, but never your role.
+      allow update: if isSignedIn()
+        && request.auth.uid == uid
+        && !changedKeys().hasAny(["role"]);
+
+      allow delete: if false;
+    }
+
+    // ---------- incidents/{incidentId} ----------
+
+    match /incidents/{incidentId} {
+      // Any signed-in user can browse reports.
+      allow read: if isSignedIn();
+
+      // A new report must belong to the caller and start as "submitted".
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+             "title", "description", "category", "location", "status",
+             "reporterId", "reporterName", "hasImage", "thumbnailBase64",
+             "createdAt", "updatedAt", "statusHistory"])
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.status == "submitted"
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.description is string
+        && request.resource.data.location is string
+        && isValidCategory(request.resource.data.category)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.statusHistory.size() == 1
+        // The thumbnail must stay small (it is loaded in every list).
+        && (request.resource.data.thumbnailBase64 == null
+            || request.resource.data.thumbnailBase64.size() < 100000);
+
+      allow update: if isStaffStatusUpdate() || isReporterEdit();
+
+      // Reports are never deleted from the app.
+      allow delete: if false;
+
+      // Staff may change only the status, add ONE timeline entry, and
+      // bump updatedAt.
+      function isStaffStatusUpdate() {
+        return isStaff()
+          && changedKeys().hasOnly(["status", "statusHistory", "updatedAt"])
+          && isValidStatus(request.resource.data.status)
+          && request.resource.data.statusHistory.size()
+               == resource.data.statusHistory.size() + 1;
+      }
+
+      // The reporter may fix the title/description while it is still
+      // "submitted" (not used by the app yet, allowed by the spec).
+      function isReporterEdit() {
+        return isSignedIn()
+          && request.auth.uid == resource.data.reporterId
+          && resource.data.status == "submitted"
+          && changedKeys().hasOnly(["title", "description", "updatedAt"]);
+      }
+    }
+
+    // ---------- incident_images/{incidentId} ----------
+
+    match /incident_images/{incidentId} {
+      allow read: if isSignedIn();
+
+      // Only the incident's reporter can add its photo, and the base64
+      // text must stay under ~1 MB (a Firestore document's limit is 1 MiB).
+      allow create: if isSignedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && get(/databases/$(database)/documents/incidents/$(incidentId)).data.reporterId
+             == request.auth.uid
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 1000000;
+
+      allow update, delete: if false;
+    }
+  }
+}
