@@ -9,6 +9,7 @@ import 'package:campus_incident_app/screens/shared/incident_details_screen.dart'
 import 'package:campus_incident_app/services/image_service.dart';
 import 'package:campus_incident_app/services/incident_repository.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,11 +20,19 @@ class FakeImageService extends ImageService {
     required String incidentId,
     required String ownerId,
     required Uint8List bytes,
-  }) async =>
-      'fake/$incidentId';
+  }) async => 'fake/$incidentId';
 
   @override
   Future<Uint8List?> loadImage(String incidentId) async => null;
+}
+
+/// A signed-in Firebase user. Fake lets us implement only the uid getter;
+/// the providers read nothing else.
+class FakeFirebaseUser extends Fake implements User {
+  FakeFirebaseUser(this.uid);
+
+  @override
+  final String uid;
 }
 
 const student = AppUser(
@@ -76,6 +85,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          authStateProvider.overrideWith(
+            (ref) => Stream.value(FakeFirebaseUser(user.uid)),
+          ),
           currentUserProfileProvider.overrideWith((ref) => Stream.value(user)),
           incidentRepositoryProvider.overrideWithValue(repository),
         ],
@@ -92,8 +104,9 @@ void main() {
     expect(find.text('Update Status'), findsNothing);
   });
 
-  testWidgets('staff can move an incident to In Progress with a note',
-      (tester) async {
+  testWidgets('staff can move an incident to In Progress with a note', (
+    tester,
+  ) async {
     await pumpDetails(tester, staff);
 
     await tester.tap(find.text('Update Status'));
