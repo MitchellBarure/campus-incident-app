@@ -3,8 +3,7 @@
 A Flutter app where students report campus issues (leaks, broken furniture,
 electrical faults, safety hazards...) and staff track and resolve them.
 
-Built for the Mobile Application Development module at African Leadership
-University.
+Built for the Mobile Application Development module.
 
 ## Features
 
