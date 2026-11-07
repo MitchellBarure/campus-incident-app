@@ -26,6 +26,9 @@ class FakeImageService extends ImageService {
 
   @override
   Future<Uint8List?> loadImage(String incidentId) async => saved[incidentId];
+
+  @override
+  Future<void> deleteImage(String incidentId) async => saved.remove(incidentId);
 }
 
 void main() {
@@ -182,5 +185,38 @@ void main() {
   test('watchIncident emits null for a missing incident', () async {
     final incident = await repository.watchIncident('does-not-exist').first;
     expect(incident, isNull);
+  });
+
+  test('updateIncidentDetails edits the text fields only', () async {
+    final id = await createSample();
+
+    await repository.updateIncidentDetails(
+      incidentId: id,
+      title: '  Burst pipe  ',
+      description: 'Water is now flooding the corridor',
+      category: IncidentCategory.facilities,
+      location: 'Block C',
+    );
+
+    final incident = await repository.watchIncident(id).first;
+    expect(incident!.title, 'Burst pipe');
+    expect(incident.category, IncidentCategory.facilities);
+    expect(incident.location, 'Block C');
+    expect(incident.status, IncidentStatus.submitted);
+    expect(incident.reporterId, student.uid);
+  });
+
+  test('deleteIncident removes the report and its photo', () async {
+    final image = CompressedImage(
+      fullBytes: Uint8List.fromList([1, 2, 3]),
+      thumbnailBytes: Uint8List.fromList([4, 5]),
+    );
+    final id = await createSample(image: image);
+    final incident = await repository.watchIncident(id).first;
+
+    await repository.deleteIncident(incident!);
+
+    expect(await repository.watchIncident(id).first, isNull);
+    expect(imageService.saved.containsKey(id), isFalse);
   });
 }

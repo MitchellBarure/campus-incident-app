@@ -10,6 +10,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 class FakeImageService extends ImageService {
   @override
+  Future<void> deleteImage(String incidentId) async {}
+
+  @override
   Future<String> uploadImage({
     required String incidentId,
     required String ownerId,

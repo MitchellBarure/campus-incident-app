@@ -16,6 +16,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 class FakeImageService extends ImageService {
   @override
+  Future<void> deleteImage(String incidentId) async {}
+
+  @override
   Future<String> uploadImage({
     required String incidentId,
     required String ownerId,
@@ -101,6 +104,22 @@ void main() {
 
     expect(find.text('Leaking tap'), findsOneWidget);
     expect(find.text('Update Status'), findsNothing);
+  });
+
+  testWidgets('the reporter sees Edit and Delete while it is Submitted', (
+    tester,
+  ) async {
+    await pumpDetails(tester, student);
+
+    expect(find.byTooltip('Edit report'), findsOneWidget);
+    expect(find.byTooltip('Delete report'), findsOneWidget);
+  });
+
+  testWidgets('other users never see Edit or Delete', (tester) async {
+    await pumpDetails(tester, staff);
+
+    expect(find.byTooltip('Edit report'), findsNothing);
+    expect(find.byTooltip('Delete report'), findsNothing);
   });
 
   testWidgets('staff can move an incident to In Progress with a note', (

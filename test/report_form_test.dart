@@ -2,6 +2,9 @@ import 'dart:typed_data';
 
 import 'package:campus_incident_app/core/router/app_router.dart';
 import 'package:campus_incident_app/models/app_user.dart';
+import 'package:campus_incident_app/models/incident.dart';
+import 'package:campus_incident_app/models/incident_category.dart';
+import 'package:campus_incident_app/models/incident_status.dart';
 import 'package:campus_incident_app/providers/auth_providers.dart';
 import 'package:campus_incident_app/providers/incident_providers.dart';
 import 'package:campus_incident_app/screens/student/report_incident_screen.dart';
@@ -15,6 +18,9 @@ import 'package:go_router/go_router.dart';
 
 /// An image service that never touches a camera or Firebase.
 class FakeImageService extends ImageService {
+  @override
+  Future<void> deleteImage(String incidentId) async {}
+
   @override
   Future<String> uploadImage({
     required String incidentId,
@@ -38,7 +44,10 @@ void main() {
 
   /// Shows the Report screen with fakes.
   /// The default theme avoids downloading Google Fonts.
-  Future<void> pumpReportScreen(WidgetTester tester) async {
+  Future<void> pumpReportScreen(
+    WidgetTester tester, {
+    Incident? existing,
+  }) async {
     firestore = FakeFirebaseFirestore();
 
     // Tall screen so the ListView builds the whole form.
@@ -55,7 +64,7 @@ void main() {
         ),
         GoRoute(
           path: AppRoutes.reportIncident,
-          builder: (context, state) => const ReportIncidentScreen(),
+          builder: (context, state) => ReportIncidentScreen(existing: existing),
         ),
       ],
     );
@@ -125,5 +134,33 @@ void main() {
     expect(saved.docs.single.data()['reporterName'], 'Amina');
     expect(find.text('Home page'), findsOneWidget);
     expect(find.text('Report submitted. Thank you!'), findsOneWidget);
+  });
+
+  testWidgets('edit mode fills in the report and hides the photo', (
+    tester,
+  ) async {
+    final now = DateTime(2026, 11, 7);
+    final existing = Incident(
+      id: 'abc',
+      title: 'Leaking tap',
+      description: 'Water everywhere in the washroom',
+      category: IncidentCategory.water,
+      location: 'Block B',
+      status: IncidentStatus.submitted,
+      reporterId: student.uid,
+      reporterName: student.name,
+      hasImage: false,
+      createdAt: now,
+      updatedAt: now,
+      statusHistory: const [],
+    );
+
+    await pumpReportScreen(tester, existing: existing);
+
+    expect(find.text('Edit Report'), findsOneWidget);
+    expect(find.text('Leaking tap'), findsOneWidget);
+    expect(find.text('Block B'), findsOneWidget);
+    expect(find.text('Save Changes'), findsOneWidget);
+    expect(find.text('Photo'), findsNothing);
   });
 }
