@@ -13,9 +13,21 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function hasAluEmail() {
+      return request.auth.token.email.lower()
+        .matches('.*@(alustudent|alueducation)[.]com$');
+    }
+
+    // Signed in with a verified ALU email.
+    function isVerifiedAluUser() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && hasAluEmail();
+    }
+
     // Reads the caller's own profile to check their role.
     function isStaff() {
-      return isSignedIn() &&
+      return isVerifiedAluUser() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "staff";
     }
 
@@ -41,6 +53,7 @@ service cloud.firestore {
 
       // Everyone signs up as a student. Staff are promoted in the Console.
       allow create: if isSignedIn()
+        && hasAluEmail()
         && request.auth.uid == uid
         && request.resource.data.role == "student"
         && request.resource.data.keys().hasOnly(["name", "email", "role", "createdAt"]);
@@ -56,11 +69,11 @@ service cloud.firestore {
     // ---------- incidents/{incidentId} ----------
 
     match /incidents/{incidentId} {
-      // Any signed-in user can browse reports.
-      allow read: if isSignedIn();
+      // Any verified ALU user can browse reports.
+      allow read: if isVerifiedAluUser();
 
       // A new report must belong to the caller and start as "submitted".
-      allow create: if isSignedIn()
+      allow create: if isVerifiedAluUser()
         && request.resource.data.keys().hasOnly([
              "title", "description", "category", "location", "status",
              "reporterId", "reporterName", "hasImage", "thumbnailBase64",
@@ -97,7 +110,7 @@ service cloud.firestore {
       // The reporter may fix the title/description while it is still
       // "submitted" (not used by the app yet, allowed by the spec).
       function isReporterEdit() {
-        return isSignedIn()
+        return isVerifiedAluUser()
           && request.auth.uid == resource.data.reporterId
           && resource.data.status == "submitted"
           && changedKeys().hasOnly(["title", "description", "updatedAt"]);
@@ -107,11 +120,11 @@ service cloud.firestore {
     // ---------- incident_images/{incidentId} ----------
 
     match /incident_images/{incidentId} {
-      allow read: if isSignedIn();
+      allow read: if isVerifiedAluUser();
 
       // Only the incident's reporter can add its photo, and the base64
       // text must stay under ~1 MB (a Firestore document's limit is 1 MiB).
-      allow create: if isSignedIn()
+      allow create: if isVerifiedAluUser()
         && request.resource.data.ownerId == request.auth.uid
         && get(/databases/$(database)/documents/incidents/$(incidentId)).data.reporterId
              == request.auth.uid
