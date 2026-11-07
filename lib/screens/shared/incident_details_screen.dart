@@ -7,12 +7,15 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/incident.dart';
 import '../../models/status_change.dart';
+import '../../providers/auth_providers.dart';
 import '../../providers/incident_providers.dart';
+import '../../widgets/app_button.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_view.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/status_chip.dart';
 import '../../widgets/status_timeline.dart';
+import '../staff/update_status_sheet.dart';
 
 class IncidentDetailsScreen extends ConsumerWidget {
   const IncidentDetailsScreen({super.key, required this.incidentId});
@@ -22,9 +25,32 @@ class IncidentDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final incident = ref.watch(incidentByIdProvider(incidentId));
+    final profile = ref.watch(currentUserProfileProvider).value;
+    final loadedIncident = incident.value;
+
+    // Only staff ever see the Update Status button. Students couldn't
+    // change the status anyway: the security rules reject it.
+    final showUpdateButton =
+        profile != null && profile.isStaff && loadedIncident != null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Report Details')),
+      bottomNavigationBar: showUpdateButton
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: AppButton(
+                  label: 'Update Status',
+                  icon: Icons.edit_note,
+                  onPressed: () => showUpdateStatusSheet(
+                    context,
+                    incident: loadedIncident,
+                    staff: profile,
+                  ),
+                ),
+              ),
+            )
+          : null,
       body: incident.when(
         loading: () => const LoadingView(),
         error: (error, _) => ErrorView(

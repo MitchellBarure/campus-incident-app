@@ -32,13 +32,19 @@ class AppRoutes {
   static const reportIncident = '/report';
   static const staffDashboard = '/staff';
 
+  // Staff get their own profile page, outside the student bottom bar.
+  static const staffProfile = '/staff/profile';
+
   static String incidentDetails(String id) => '/incident/$id';
 }
 
-/// Pages only students should see. Staff are sent to their dashboard.
+/// Pages only students should see (the bottom-bar tabs and the report
+/// form). Staff are sent to their dashboard instead.
 const _studentOnlyRoutes = {
   AppRoutes.home,
+  AppRoutes.browse,
   AppRoutes.myReports,
+  AppRoutes.profile,
   AppRoutes.reportIncident,
 };
 
@@ -79,7 +85,9 @@ String? authRedirect({
   if (onAuthPage || onSplash) {
     return startPage;
   }
-  if (role == UserRole.student && location == AppRoutes.staffDashboard) {
+  // Every staff page starts with /staff (dashboard, staff profile).
+  if (role == UserRole.student &&
+      location.startsWith(AppRoutes.staffDashboard)) {
     return startPage;
   }
   if (role == UserRole.staff && _studentOnlyRoutes.contains(location)) {
@@ -167,6 +175,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.staffDashboard,
         builder: (context, state) => const StaffDashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.staffProfile,
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );
