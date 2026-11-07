@@ -9,7 +9,7 @@ Built for the Mobile Application Development module.
 
 | Students | Staff |
 | --- | --- |
-| Sign up / log in (email + password) | Staff dashboard with counts by status |
+| Sign up / log in with an ALU email, verified by email link | Staff dashboard with counts by status |
 | Report an issue: category, title, description, location, optional photo | Every report, newest first, with search and filters |
 | Home: greeting, report banner, summary cards, recent reports | Update a report's status with an optional note |
 | Browse all reports with search, status and category filters | Same details screen, plus an **Update Status** button |
@@ -24,7 +24,7 @@ All data updates live (Firestore streams), so there is no pull-to-refresh.
 - **Flutter** (Material 3, ALU brand colours, Poppins font)
 - **Riverpod** (`flutter_riverpod`, no code generation) for state management
 - **go_router** with a redirect based on login state and role
-- **Firebase Authentication** (email + password)
+- **Firebase Authentication** (email + password, ALU emails only, email verification)
 - **Cloud Firestore** for all data, protected by security rules
 - **Photos** are compressed and stored as base64 in Firestore (see below)
 
@@ -61,6 +61,8 @@ project instead, run `flutterfire configure` and update `.firebaserc`.
 In the [Firebase Console](https://console.firebase.google.com/):
 
 1. **Build → Authentication → Sign-in method → Email/Password → Enable → Save.**
+   Verification emails use the default template under **Authentication →
+   Templates**; they sometimes land in spam.
 2. **Build → Firestore Database → Create database** (if it doesn't exist yet).
 
 ### 3. Deploy the security rules and index
@@ -85,7 +87,8 @@ flutter run
 Everyone signs up as a **student**; the security rules don't let anyone make
 themselves staff. To promote a user:
 
-1. Sign up in the app with the account you want to be staff.
+1. Sign up in the app with the account you want to be staff (an
+   `@alueducation.com` or `@alustudent.com` email) and verify it.
 2. Firebase Console → **Firestore Database → Data → `users`**.
 3. Click the document whose `email` matches that account.
 4. Click the `role` field's value, change `student` to `staff`, click **Update**.
@@ -109,19 +112,22 @@ stored in Firestore instead:
 - A complete Firebase Storage implementation (`FirebaseStorageImageService`) is
   included but switched off. Set `useFirebaseStorage = true` in
   `lib/core/constants.dart` to use it on a Blaze project.
-- Its security rules are in `storage.rules`: signed-in users can read; only the
+- Its security rules are in `storage.rules`: verified ALU users can read; only the
   incident's reporter can upload, once, as a JPEG under 700 KB. Deploy them on a
   Blaze project with `firebase deploy --only storage` after adding
   `"storage": { "rules": "storage.rules" }` to `firebase.json`.
 
 ## Security rules summary
 
+Only users signed in with a **verified** `@alustudent.com` or
+`@alueducation.com` email can read or write incidents and photos.
+
 - **users**: read your own profile (staff can read all); create your own only as a
-  `student`; never change your own role.
-- **incidents**: any signed-in user can read. Create only as yourself with status
+  `student` with an ALU email; never change your own role.
+- **incidents**: any verified ALU user can read. Create only as yourself with status
   `submitted` and valid fields. Only staff can change `status`, `statusHistory`
   and `updatedAt` (one new timeline entry at a time). No deletes.
-- **incident_images**: signed-in read; only the incident's reporter can add the
+- **incident_images**: verified ALU users can read; only the incident's reporter can add the
   photo, and it must be under ~1 MB.
 
 ## Tests
@@ -132,9 +138,9 @@ flutter test
 
 | File | What it covers |
 | --- | --- |
-| `validators_test.dart` | Sign-up and report form validation |
+| `validators_test.dart` | Sign-up (incl. ALU email only) and report form validation |
 | `app_user_test.dart`, `incident_model_test.dart` | Models' `fromMap` / `toMap` |
-| `auth_redirect_test.dart` | Role-based routing rules, friendly auth errors |
+| `auth_redirect_test.dart` | Role-based routing, email verification redirect, friendly auth errors |
 | `incident_repository_test.dart` | Create, stream and update incidents (fake Firestore) |
 | `image_compression_test.dart` | Photo resizing, thumbnails and the size limit |
 | `filter_logic_test.dart`, `filter_providers_test.dart` | Search, filters and status counts |
