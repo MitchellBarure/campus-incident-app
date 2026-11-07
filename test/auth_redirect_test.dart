@@ -87,6 +87,29 @@ void main() {
       expect(result, AppRoutes.staffDashboard);
     });
 
+    test('blocks students from the staff profile page', () {
+      final result = authRedirect(
+        location: AppRoutes.staffProfile,
+        isAuthLoading: false,
+        isLoggedIn: true,
+        role: UserRole.student,
+      );
+      expect(result, AppRoutes.home);
+    });
+
+    test('lets staff open their own profile but not the student tabs', () {
+      String? redirectStaff(String location) => authRedirect(
+            location: location,
+            isAuthLoading: false,
+            isLoggedIn: true,
+            role: UserRole.staff,
+          );
+
+      expect(redirectStaff(AppRoutes.staffProfile), isNull);
+      expect(redirectStaff(AppRoutes.profile), AppRoutes.staffDashboard);
+      expect(redirectStaff(AppRoutes.browse), AppRoutes.staffDashboard);
+    });
+
     test('lets both roles open shared pages', () {
       for (final role in UserRole.values) {
         final result = authRedirect(
