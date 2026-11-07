@@ -67,6 +67,72 @@ void main() {
     });
   });
 
+  group('filterIncidents search and category', () {
+    final mixed = [
+      makeIncident(
+        id: 'tap',
+        title: 'Leaking tap',
+        location: 'Block B washroom',
+        category: IncidentCategory.water,
+      ),
+      makeIncident(
+        id: 'light',
+        title: 'Flickering light',
+        description: 'Corridor light keeps flickering',
+        location: 'Library',
+        category: IncidentCategory.electricity,
+        status: IncidentStatus.resolved,
+      ),
+      makeIncident(
+        id: 'chair',
+        title: 'Broken chair',
+        location: 'Block B - Room 204',
+        category: IncidentCategory.furniture,
+      ),
+    ];
+
+    test('search is case-insensitive and ignores surrounding spaces', () {
+      final result = filterIncidents(mixed, query: '  LEAKING ');
+      expect(result.map((i) => i.id), ['tap']);
+    });
+
+    test('search looks at location and description too', () {
+      expect(
+        filterIncidents(mixed, query: 'block b').map((i) => i.id),
+        ['tap', 'chair'],
+      );
+      expect(
+        filterIncidents(mixed, query: 'corridor').map((i) => i.id),
+        ['light'],
+      );
+    });
+
+    test('search matches the category label', () {
+      final result = filterIncidents(mixed, query: 'furniture');
+      expect(result.map((i) => i.id), ['chair']);
+    });
+
+    test('category filter keeps only that category', () {
+      final result =
+          filterIncidents(mixed, category: IncidentCategory.electricity);
+      expect(result.map((i) => i.id), ['light']);
+    });
+
+    test('all filters combine (AND)', () {
+      final result = filterIncidents(
+        mixed,
+        query: 'block b',
+        status: IncidentStatus.submitted,
+        category: IncidentCategory.furniture,
+      );
+      expect(result.map((i) => i.id), ['chair']);
+    });
+
+    test('returns an empty list when nothing matches', () {
+      expect(filterIncidents(mixed, query: 'parking'), isEmpty);
+    });
+  });
+
   group('Formatters', () {
     test('firstName takes the first word', () {
       expect(Formatters.firstName('Amina Uwase'), 'Amina');
