@@ -2,10 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/router/app_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/incident.dart';
+import '../../models/incident_status.dart';
 import '../../models/status_change.dart';
 import '../../providers/auth_providers.dart';
 import '../../providers/incident_providers.dart';
@@ -32,8 +36,34 @@ class IncidentDetailsScreen extends ConsumerWidget {
     final showUpdateButton =
         profile != null && profile.isStaff && loadedIncident != null;
 
+    // Reporters can edit or delete until staff start on it.
+    final canEditOrDelete =
+        profile != null &&
+        loadedIncident != null &&
+        loadedIncident.reporterId == profile.uid &&
+        loadedIncident.status == IncidentStatus.submitted;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Report Details')),
+      appBar: AppBar(
+        title: const Text('Report Details'),
+        actions: [
+          if (canEditOrDelete) ...[
+            IconButton(
+              tooltip: 'Edit report',
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () => context.push(
+                AppRoutes.editIncident(loadedIncident.id),
+                extra: loadedIncident,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Delete report',
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => _confirmDelete(context, ref, loadedIncident),
+            ),
+          ],
+        ],
+      ),
       bottomNavigationBar: showUpdateButton
           ? SafeArea(
               child: Padding(
@@ -65,17 +95,72 @@ class IncidentDetailsScreen extends ConsumerWidget {
               message: 'This report may have been removed.',
             );
           }
-          return _DetailsBody(incident: incident);
+          return _DetailsBody(
+            incident: incident,
+            showEditHint: canEditOrDelete,
+          );
         },
       ),
     );
   }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    Incident incident,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete this report?'),
+        content: const Text(
+          'This removes it for everyone and cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    // Read before the await, while this screen is still mounted.
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    try {
+      await ref.read(incidentRepositoryProvider).deleteIncident(incident);
+      if (router.canPop()) router.pop();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Report deleted.'),
+          backgroundColor: AppColors.resolved,
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not delete. Reports can only be deleted while Submitted.',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
 }
 
 class _DetailsBody extends StatelessWidget {
-  const _DetailsBody({required this.incident});
+  const _DetailsBody({required this.incident, required this.showEditHint});
 
   final Incident incident;
+  final bool showEditHint;
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +198,15 @@ class _DetailsBody extends StatelessWidget {
             ),
           ],
         ),
+        if (showEditHint) ...[
+          const SizedBox(height: 8),
+          Text(
+            'You can edit or delete this report until staff start on it.',
+            style: textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
         _SectionCard(
           child: Column(

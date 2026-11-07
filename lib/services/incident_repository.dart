@@ -140,6 +140,32 @@ class IncidentRepository {
     });
   }
 
+  /// Reporter only, while still submitted (enforced by rules).
+  Future<void> updateIncidentDetails({
+    required String incidentId,
+    required String title,
+    required String description,
+    required IncidentCategory category,
+    required String location,
+  }) {
+    return _incidents.doc(incidentId).update({
+      'title': title.trim(),
+      'description': description.trim(),
+      'category': category.name,
+      'location': location.trim(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Reporter only, while still submitted (enforced by rules).
+  Future<void> deleteIncident(Incident incident) async {
+    // Photo first: its rule checks the incident still exists.
+    if (incident.hasImage) {
+      await _imageService.deleteImage(incident.id);
+    }
+    await _incidents.doc(incident.id).delete();
+  }
+
   List<Incident> _toIncidents(QuerySnapshot<Map<String, dynamic>> snapshot) {
     return snapshot.docs
         .map((doc) => Incident.fromMap(doc.id, doc.data()))

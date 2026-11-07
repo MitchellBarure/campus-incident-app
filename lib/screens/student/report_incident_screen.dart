@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/validators.dart';
+import '../../models/incident.dart';
 import '../../models/incident_category.dart';
 import '../../providers/auth_providers.dart';
 import '../../providers/incident_providers.dart';
@@ -17,7 +18,10 @@ import '../../widgets/category_selector.dart';
 import '../../widgets/photo_picker_field.dart';
 
 class ReportIncidentScreen extends ConsumerStatefulWidget {
-  const ReportIncidentScreen({super.key});
+  const ReportIncidentScreen({super.key, this.existing});
+
+  /// Set to edit an existing report instead of creating one.
+  final Incident? existing;
 
   @override
   ConsumerState<ReportIncidentScreen> createState() =>
@@ -40,6 +44,20 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   bool _showCategoryError = false;
   bool _isProcessingPhoto = false;
   bool _isSubmitting = false;
+
+  bool get _isEditing => widget.existing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existing;
+    if (existing != null) {
+      _titleController.text = existing.title;
+      _descriptionController.text = existing.description;
+      _locationController.text = existing.location;
+      _category = existing.category;
+    }
+  }
 
   @override
   void dispose() {
@@ -73,6 +91,11 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     final fieldsAreValid = _formKey.currentState!.validate();
     setState(() => _showCategoryError = _category == null);
     if (!fieldsAreValid || _category == null) return;
+
+    if (_isEditing) {
+      await _saveChanges();
+      return;
+    }
 
     final reporter = ref.read(currentUserProfileProvider).value;
     if (reporter == null) {
@@ -111,6 +134,31 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     }
   }
 
+  Future<void> _saveChanges() async {
+    setState(() => _isSubmitting = true);
+    try {
+      await ref
+          .read(incidentRepositoryProvider)
+          .updateIncidentDetails(
+            incidentId: widget.existing!.id,
+            title: _titleController.text,
+            description: _descriptionController.text,
+            category: _category!,
+            location: _locationController.text,
+          );
+      _showSnackBar('Report updated.');
+      _close();
+    } catch (_) {
+      // e.g. staff started on it meanwhile, so the rules refuse the edit.
+      _showSnackBar(
+        'Could not save. Reports can only be edited while Submitted.',
+        isError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   void _close() {
     if (!mounted) return;
     if (context.canPop()) {
@@ -138,7 +186,9 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     final isBusy = _isSubmitting || _isProcessingPhoto;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Report an Issue')),
+      appBar: AppBar(
+        title: Text(_isEditing ? 'Edit Report' : 'Report an Issue'),
+      ),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -187,19 +237,22 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
                 validator: Validators.location,
                 enabled: !_isSubmitting,
               ),
-              const SizedBox(height: 20),
-              const _SectionLabel('Photo'),
-              const SizedBox(height: 8),
-              PhotoPickerField(
-                imageBytes: _image?.fullBytes,
-                isProcessing: _isProcessingPhoto,
-                onPick: _isSubmitting ? (_) {} : _pickPhoto,
-                onRemove: () => setState(() => _image = null),
-              ),
+              // Photos can't be changed after submitting.
+              if (!_isEditing) ...[
+                const SizedBox(height: 20),
+                const _SectionLabel('Photo'),
+                const SizedBox(height: 8),
+                PhotoPickerField(
+                  imageBytes: _image?.fullBytes,
+                  isProcessing: _isProcessingPhoto,
+                  onPick: _isSubmitting ? (_) {} : _pickPhoto,
+                  onRemove: () => setState(() => _image = null),
+                ),
+              ],
               const SizedBox(height: 28),
               AppButton(
-                label: 'Submit Report',
-                icon: Icons.send_outlined,
+                label: _isEditing ? 'Save Changes' : 'Submit Report',
+                icon: _isEditing ? Icons.check : Icons.send_outlined,
                 isLoading: _isSubmitting,
                 // Disabled while a photo is still being prepared.
                 onPressed: isBusy ? null : _submit,

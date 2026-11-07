@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/app_user.dart';
+import '../../models/incident.dart';
 import '../../providers/auth_providers.dart';
 import '../../screens/auth/login_screen.dart';
 import '../../screens/auth/signup_screen.dart';
@@ -37,6 +38,7 @@ class AppRoutes {
   static const staffProfile = '/staff/profile';
 
   static String incidentDetails(String id) => '/incident/$id';
+  static String editIncident(String id) => '/incident/$id/edit';
 }
 
 /// Staff are redirected away from these pages.
@@ -176,6 +178,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           final incidentId = state.pathParameters['id']!;
           return IncidentDetailsScreen(incidentId: incidentId);
         },
+      ),
+      GoRoute(
+        path: '/incident/:id/edit',
+        // The details screen passes the loaded incident as `extra`.
+        builder: (context, state) =>
+            ReportIncidentScreen(existing: state.extra as Incident?),
       ),
       GoRoute(
         path: AppRoutes.staffDashboard,

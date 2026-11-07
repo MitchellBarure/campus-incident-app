@@ -104,6 +104,9 @@ abstract class ImageService {
 
   /// Loads the full-size photo for an incident, or null if there isn't one.
   Future<Uint8List?> loadImage(String incidentId);
+
+  /// Deletes an incident's photo (when the report is deleted).
+  Future<void> deleteImage(String incidentId);
 }
 
 /// ACTIVE: base64 in incident_images/{incidentId}. Works on Spark.
@@ -136,6 +139,9 @@ class FirestoreImageService extends ImageService {
     if (data == null) return null;
     return base64Decode(data);
   }
+
+  @override
+  Future<void> deleteImage(String incidentId) => _imageDoc(incidentId).delete();
 }
 
 /// INACTIVE (needs the Blaze plan): uploads to Firebase Storage at
@@ -173,6 +179,15 @@ class FirebaseStorageImageService extends ImageService {
     } on FirebaseException catch (e) {
       if (e.code == 'object-not-found') return null;
       rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteImage(String incidentId) async {
+    try {
+      await _imageRef(incidentId).delete();
+    } on FirebaseException catch (e) {
+      if (e.code != 'object-not-found') rethrow;
     }
   }
 }
