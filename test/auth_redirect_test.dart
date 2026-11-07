@@ -123,6 +123,36 @@ void main() {
     });
   });
 
+  group('email verification', () {
+    String? redirectUnverified(String location) => authRedirect(
+      location: location,
+      isAuthLoading: false,
+      isLoggedIn: true,
+      isEmailVerified: false,
+      role: UserRole.student,
+    );
+
+    test('sends unverified users to the verify page', () {
+      expect(redirectUnverified(AppRoutes.home), AppRoutes.verifyEmail);
+      expect(
+        redirectUnverified(AppRoutes.staffDashboard),
+        AppRoutes.verifyEmail,
+      );
+      expect(redirectUnverified(AppRoutes.verifyEmail), isNull);
+    });
+
+    test('moves verified users off the verify page', () {
+      final result = authRedirect(
+        location: AppRoutes.verifyEmail,
+        isAuthLoading: false,
+        isLoggedIn: true,
+        isEmailVerified: true,
+        role: UserRole.student,
+      );
+      expect(result, AppRoutes.home);
+    });
+  });
+
   group('friendlyAuthMessage', () {
     test('uses one message for wrong password and unknown email', () {
       const expected = 'Incorrect email or password.';

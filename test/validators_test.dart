@@ -37,6 +37,13 @@ void main() {
       expect(Validators.email('m.barure@alustudent.com'), isNull);
       expect(Validators.email('  m.barure@alustudent.com  '), isNull);
     });
+
+    test('accepts only ALU email domains', () {
+      expect(Validators.email('staff@alueducation.com'), isNull);
+      expect(Validators.email('Amina@ALUstudent.com'), isNull);
+      expect(Validators.email('someone@gmail.com'), isNotNull);
+      expect(Validators.email('fake@alustudent.com.evil.io'), isNotNull);
+    });
   });
 
   group('Validators.password', () {
