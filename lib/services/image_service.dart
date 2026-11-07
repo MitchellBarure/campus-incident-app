@@ -6,9 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
-/// Largest full-size photo we will save. A Firestore document can hold at
-/// most 1 MiB, and base64 text is about 33% bigger than the raw bytes,
-/// so 700 KB of JPEG becomes about 950 KB of text - just under the limit.
+/// Base64 adds ~33%, so 700 KB stays under Firestore's 1 MiB doc limit.
 const int maxImageBytes = 700 * 1024;
 
 /// Width (in pixels) of the full-size photo.
@@ -40,18 +38,15 @@ class CompressedImage {
   String get thumbnailBase64 => base64Encode(thumbnailBytes);
 }
 
-/// Shrinks a photo so it fits in Firestore, and makes a thumbnail.
-///
-/// This is a plain function (no Firebase, no widgets) so it can be unit
-/// tested and run on a background isolate with compute().
+/// Shrinks a photo to fit in Firestore and makes a thumbnail.
+/// A plain function, so it can run in compute().
 CompressedImage compressImage(Uint8List originalBytes) {
   final decoded = img.decodeImage(originalBytes);
   if (decoded == null) {
     throw const ImageProcessingException('That file is not a supported image.');
   }
 
-  // image_picker already resizes to 1024px wide on phones, but on some
-  // platforms it can't, so we make sure here.
+  // image_picker can't resize on every platform, so make sure here.
   var fullImage = decoded;
   var fullBytes = originalBytes;
   if (decoded.width > fullImageWidth) {
@@ -79,19 +74,14 @@ CompressedImage compressImage(Uint8List originalBytes) {
   return CompressedImage(fullBytes: fullBytes, thumbnailBytes: thumbnailBytes);
 }
 
-/// Picks, saves and loads incident photos.
-///
-/// This is an abstract class: it describes what an image service can do,
-/// and the two classes below provide the "how". The rest of the app only
-/// knows about ImageService, so we can switch storage with one flag
-/// (useFirebaseStorage in core/constants.dart).
+/// Picks, saves and loads photos. Abstract, so storage can be switched
+/// with useFirebaseStorage.
 abstract class ImageService {
   ImageService({ImagePicker? picker}) : _picker = picker ?? ImagePicker();
 
   final ImagePicker _picker;
 
-  /// Lets the user take or choose a photo, then compresses it.
-  /// Returns null if the user cancels.
+  /// Takes or picks a photo and compresses it. Null if cancelled.
   Future<CompressedImage?> pickImage(ImageSource source) async {
     final file = await _picker.pickImage(
       source: source,
@@ -101,8 +91,7 @@ abstract class ImageService {
     if (file == null) return null;
 
     final bytes = await file.readAsBytes();
-    // Resizing is heavy work. compute() runs it on a background isolate
-    // (a separate thread) so the UI doesn't freeze while it runs.
+    // compute() resizes on a background isolate so the UI doesn't freeze.
     return compute(compressImage, bytes);
   }
 
@@ -117,8 +106,7 @@ abstract class ImageService {
   Future<Uint8List?> loadImage(String incidentId);
 }
 
-/// ACTIVE: stores the photo as base64 text in incident_images/{incidentId}.
-/// Works on the free Spark plan.
+/// ACTIVE: base64 in incident_images/{incidentId}. Works on Spark.
 class FirestoreImageService extends ImageService {
   FirestoreImageService({required this._firestore, super.picker});
 
@@ -150,9 +138,8 @@ class FirestoreImageService extends ImageService {
   }
 }
 
-/// INACTIVE: uploads to Firebase Storage at incidents/{incidentId}.jpg.
-/// Firebase Storage needs the paid Blaze plan (since Feb 2026), so this is
-/// switched off, but it works if useFirebaseStorage is set to true.
+/// INACTIVE (needs the Blaze plan): uploads to Firebase Storage at
+/// incidents/{incidentId}.jpg.
 class FirebaseStorageImageService extends ImageService {
   FirebaseStorageImageService({required this._storage, super.picker});
 

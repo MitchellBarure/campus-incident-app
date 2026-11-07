@@ -28,8 +28,7 @@ class IncidentDetailsScreen extends ConsumerWidget {
     final profile = ref.watch(currentUserProfileProvider).value;
     final loadedIncident = incident.value;
 
-    // Only staff ever see the Update Status button. Students couldn't
-    // change the status anyway: the security rules reject it.
+    // Staff only. The security rules also block students.
     final showUpdateButton =
         profile != null && profile.isStaff && loadedIncident != null;
 
@@ -179,8 +178,7 @@ class _DetailsBody extends StatelessWidget {
   }
 }
 
-/// The full-size photo. While it loads we show the small thumbnail,
-/// so the user sees something straight away.
+/// The full photo, showing the thumbnail while it loads.
 class _IncidentPhoto extends ConsumerWidget {
   const _IncidentPhoto({required this.incident});
 

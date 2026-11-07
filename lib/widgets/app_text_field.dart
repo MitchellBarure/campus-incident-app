@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 
-/// A labelled text field with the app's styling.
-///
-/// For password fields, set [isPassword] to get a show/hide eye button.
+/// Styled text field. [isPassword] adds a show/hide button.
 class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
@@ -36,7 +34,6 @@ class AppTextField extends StatefulWidget {
 }
 
 class _AppTextFieldState extends State<AppTextField> {
-  // Passwords start hidden; the eye button toggles this.
   bool _obscureText = true;
 
   @override

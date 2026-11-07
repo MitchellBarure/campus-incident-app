@@ -8,8 +8,7 @@ import 'package:campus_incident_app/services/incident_repository.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Pretends to store photos, so these tests don't need a real camera
-/// or Firebase. Set [shouldFail] to simulate an upload error.
+/// Fake photo storage. [shouldFail] simulates an upload error.
 class FakeImageService extends ImageService {
   bool shouldFail = false;
   final Map<String, Uint8List> saved = {};

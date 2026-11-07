@@ -28,7 +28,7 @@ class ProfileScreen extends ConsumerWidget {
           onRetry: () => ref.invalidate(currentUserProfileProvider),
         ),
         data: (user) {
-          // Briefly null while signing out; the router will move us away.
+          // Briefly null while signing out.
           if (user == null) return const LoadingView();
           return _ProfileContent(
             user: user,
@@ -96,8 +96,7 @@ class _ProfileContent extends StatelessWidget {
           icon: const Icon(Icons.logout),
           label: const Text('Sign out'),
         ),
-        // kDebugMode is false in release builds, so real users never
-        // see this developer tool.
+        // Hidden in release builds.
         if (kDebugMode) ...[
           const SizedBox(height: 32),
           _SeedDataButton(user: user),
@@ -107,7 +106,6 @@ class _ProfileContent extends StatelessWidget {
   }
 }
 
-/// A small pill showing "Student" or "Staff".
 class _RoleBadge extends StatelessWidget {
   const _RoleBadge({required this.role});
 
@@ -133,7 +131,7 @@ class _RoleBadge extends StatelessWidget {
   }
 }
 
-/// DEBUG ONLY: fills the database with 8 sample reports for demos/testing.
+/// Debug only: adds 8 sample reports.
 class _SeedDataButton extends ConsumerStatefulWidget {
   const _SeedDataButton({required this.user});
 

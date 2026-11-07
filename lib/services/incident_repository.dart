@@ -7,8 +7,7 @@ import '../models/incident_status.dart';
 import '../models/status_change.dart';
 import 'image_service.dart';
 
-/// Thrown when the report was saved but its photo could not be.
-/// The screen can still show "Report submitted" plus a warning.
+/// The report was saved but its photo wasn't.
 class PhotoUploadFailure implements Exception {
   const PhotoUploadFailure(this.incidentId);
 
@@ -38,8 +37,7 @@ class IncidentRepository {
     required AppUser reporter,
     CompressedImage? image,
   }) async {
-    // doc() with no id creates a reference with a new random id.
-    // Nothing is written until we call set().
+    // A new random id; nothing is written until set().
     final docRef = _incidents.doc();
     final now = DateTime.now();
 
@@ -68,14 +66,12 @@ class IncidentRepository {
 
     await docRef.set({
       ...incident.toMap(),
-      // Use the server's clock for the top-level dates, so they are correct
-      // even if the phone's clock is wrong.
+      // Server time, in case the phone's clock is wrong.
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    // The photo is saved after the incident, because the security rules
-    // check that the photo's incident exists and belongs to this user.
+    // Saved after the incident: the rules check it exists and is ours.
     if (image != null) {
       try {
         await _imageService.uploadImage(
@@ -91,7 +87,7 @@ class IncidentRepository {
     return docRef.id;
   }
 
-  /// Every incident, newest first. Updates live when anything changes.
+  /// Every incident, newest first, live.
   Stream<List<Incident>> watchAllIncidents() {
     return _incidents
         .orderBy('createdAt', descending: true)
@@ -99,10 +95,8 @@ class IncidentRepository {
         .map(_toIncidents);
   }
 
-  /// Incidents reported by one user, newest first.
-  ///
-  /// Needs a composite index (reporterId + createdAt). The first time it
-  /// runs, Firestore throws an error containing a link that creates it.
+  /// One user's incidents, newest first.
+  /// Needs the reporterId + createdAt index.
   Stream<List<Incident>> watchMyIncidents(String uid) {
     return _incidents
         .where('reporterId', isEqualTo: uid)
@@ -120,8 +114,7 @@ class IncidentRepository {
     });
   }
 
-  /// Staff only (enforced by security rules): moves an incident to a new
-  /// status and adds an entry to its timeline.
+  /// Staff only (enforced by rules): sets the status and logs it.
   Future<void> updateStatus({
     required String incidentId,
     required IncidentStatus newStatus,

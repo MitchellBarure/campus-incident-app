@@ -2,14 +2,8 @@ import '../../models/incident.dart';
 import '../../models/incident_category.dart';
 import '../../models/incident_status.dart';
 
-/// Returns only the incidents that match every filter given.
-///
-/// - [query]: text search over title, description, location, reporter
-///   and category (case-insensitive). Empty means "no search".
-/// - [status] / [category]: null means "All".
-///
-/// Firestore has no full-text search, so we filter the already-loaded
-/// list on the phone. It is a pure function, so it is easy to unit test.
+/// Applies the search and filters. Null [status] or [category] means All.
+/// Runs on the phone because Firestore has no full-text search.
 List<Incident> filterIncidents(
   List<Incident> incidents, {
   String query = '',
@@ -47,7 +41,6 @@ class IncidentCounts {
     required this.resolved,
   });
 
-  /// Counts a list of incidents. A plain function, so it is easy to test.
   factory IncidentCounts.from(List<Incident> incidents) {
     int countOf(IncidentStatus status) =>
         incidents.where((incident) => incident.status == status).length;

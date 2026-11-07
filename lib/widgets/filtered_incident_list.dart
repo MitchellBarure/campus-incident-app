@@ -12,11 +12,8 @@ import 'error_view.dart';
 import 'incident_card.dart';
 import 'loading_view.dart';
 
-/// The list of incidents that match the current search and filters,
-/// with loading, error and empty states.
-///
-/// Returns a list of widgets (not one widget) so a screen can place the
-/// cards straight into its own scrolling ListView.
+/// The filtered incidents with loading, error and empty states.
+/// Returns widgets, not one widget, so screens can add them to a ListView.
 List<Widget> buildFilteredIncidentList(BuildContext context, WidgetRef ref) {
   final filtered = ref.watch(filteredIncidentsProvider);
   final hasFilters = ref.watch(hasActiveFiltersProvider);

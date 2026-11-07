@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/incident_status.dart';
 
-/// A row of chips: All / Submitted / In Progress / Resolved.
-///
-/// [selected] is null when "All" is chosen.
+/// Status filter chips. [selected] is null for All.
 class StatusFilterChips extends StatelessWidget {
   const StatusFilterChips({
     super.key,

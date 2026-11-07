@@ -8,8 +8,7 @@ import '../core/utils/formatters.dart';
 import '../models/incident.dart';
 import 'status_chip.dart';
 
-/// One incident in a list: thumbnail (or category icon), title, location,
-/// status and date. Tapping it calls [onTap].
+/// One incident in a list. Tapping it calls [onTap].
 class IncidentCard extends StatelessWidget {
   const IncidentCard({super.key, required this.incident, required this.onTap});
 
@@ -103,8 +102,7 @@ class _IconText extends StatelessWidget {
   }
 }
 
-/// Decoded thumbnails, so scrolling a list doesn't decode the same
-/// base64 text again on every rebuild (which would make images flicker).
+/// Decoded thumbnails, so rebuilds don't re-decode them (avoids flicker).
 final Map<String, Uint8List> _thumbnailCache = {};
 
 Uint8List _decodeThumbnail(String base64Text) {
@@ -114,7 +112,6 @@ Uint8List _decodeThumbnail(String base64Text) {
   );
 }
 
-/// The photo thumbnail, or the category icon when there is no photo.
 class _Thumbnail extends StatelessWidget {
   const _Thumbnail({required this.incident});
 

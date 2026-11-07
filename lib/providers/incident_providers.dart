@@ -9,8 +9,7 @@ import '../services/image_service.dart';
 import '../services/incident_repository.dart';
 import 'auth_providers.dart';
 
-/// Chooses where photos are stored, based on the useFirebaseStorage flag.
-/// The rest of the app never needs to know which one is active.
+/// Picks the photo storage from the useFirebaseStorage flag.
 final imageServiceProvider = Provider<ImageService>((ref) {
   if (useFirebaseStorage) {
     return FirebaseStorageImageService(storage: FirebaseStorage.instance);
@@ -25,11 +24,8 @@ final incidentRepositoryProvider = Provider<IncidentRepository>((ref) {
   );
 });
 
-/// Every incident, newest first (Browse screen and Staff dashboard).
-///
-/// It watches the signed-in user so it restarts after every login. Without
-/// this, signing out left the old query running with no user, Firestore
-/// rejected it, and the next user saw that "permission denied" error.
+/// Every incident, newest first. Watches the user so it restarts on login
+/// instead of keeping a signed-out "permission denied" error.
 final allIncidentsProvider = StreamProvider<List<Incident>>((ref) {
   final user = ref.watch(authStateProvider).value;
   if (user == null) {
@@ -47,17 +43,14 @@ final myIncidentsProvider = StreamProvider<List<Incident>>((ref) {
   return ref.watch(incidentRepositoryProvider).watchMyIncidents(user.uid);
 });
 
-// ".family" creates one provider per value passed in, here one per
-// incident id. ref.watch(incidentByIdProvider('abc')) listens to incident
-// abc only. It is still a normal StreamProvider / FutureProvider, just
-// with a parameter.
+// .family makes one provider per argument, here one per incident id.
 
 /// One incident, live. Emits null if the incident doesn't exist.
 final incidentByIdProvider = StreamProvider.family<Incident?, String>((
   ref,
   incidentId,
 ) {
-  // Restart after login/logout for the same reason as allIncidentsProvider.
+  // Restarts on login, like allIncidentsProvider.
   final user = ref.watch(authStateProvider).value;
   if (user == null) {
     return Stream.value(null);
@@ -65,8 +58,7 @@ final incidentByIdProvider = StreamProvider.family<Incident?, String>((
   return ref.watch(incidentRepositoryProvider).watchIncident(incidentId);
 });
 
-/// The full-size photo for one incident, loaded only on the details
-/// screen (the lists use the small thumbnail instead).
+/// The full-size photo, loaded only on the details screen.
 final incidentImageProvider = FutureProvider.family<Uint8List?, String>((
   ref,
   incidentId,

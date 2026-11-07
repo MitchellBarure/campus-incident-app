@@ -4,9 +4,7 @@ import '../core/theme/app_colors.dart';
 import '../core/utils/incident_filters.dart';
 import '../models/incident_status.dart';
 
-/// Four summary cards in a 2 x 2 grid: total, submitted, in progress and
-/// resolved. [totalLabel] is "My Reports" for students, "All Reports" for
-/// staff.
+/// The four summary cards in a 2 x 2 grid.
 class SummaryGrid extends StatelessWidget {
   const SummaryGrid({
     super.key,
@@ -66,8 +64,7 @@ class SummaryGrid extends StatelessWidget {
   }
 }
 
-/// A small card with an icon, a big number and a label,
-/// e.g. "3 - In Progress". Used on Home and the Staff dashboard.
+/// One card: icon, big number and label.
 class SummaryCard extends StatelessWidget {
   const SummaryCard({
     super.key,

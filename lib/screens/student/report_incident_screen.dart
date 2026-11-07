@@ -27,9 +27,7 @@ class ReportIncidentScreen extends ConsumerStatefulWidget {
 class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  /// Errors are only checked when the user taps Submit at first. After
-  /// that, each field re-checks as it is edited, so an error disappears
-  /// as soon as it is fixed.
+  /// Validate on submit first, then live, so errors clear once fixed.
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -38,7 +36,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   IncidentCategory? _category;
   CompressedImage? _image;
 
-  /// True after a submit attempt with no category, to show the error.
+  /// Shows the category error after a submit without one.
   bool _showCategoryError = false;
   bool _isProcessingPhoto = false;
   bool _isSubmitting = false;
@@ -55,7 +53,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     setState(() => _isProcessingPhoto = true);
     try {
       final image = await ref.read(imageServiceProvider).pickImage(source);
-      // image is null if the user closed the camera/gallery without picking.
+      // null if the user cancelled.
       if (image != null && mounted) {
         setState(() => _image = image);
       }
@@ -71,8 +69,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
 
   Future<void> _submit() async {
     setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
-    // Validate both the text fields and the category, so every problem
-    // is shown at once rather than one at a time.
+    // Validate fields and category together so all errors show at once.
     final fieldsAreValid = _formKey.currentState!.validate();
     setState(() => _showCategoryError = _category == null);
     if (!fieldsAreValid || _category == null) return;
@@ -114,7 +111,6 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
     }
   }
 
-  /// Goes back to wherever the user opened this screen from.
   void _close() {
     if (!mounted) return;
     if (context.canPop()) {
@@ -126,8 +122,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
 
   void _showSnackBar(String message, {bool isError = false}) {
     if (!mounted) return;
-    // The messenger belongs to the whole app, so the message stays
-    // visible even after this screen closes.
+    // The app-wide messenger keeps the message visible after we close.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

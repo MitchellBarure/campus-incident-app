@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Every color used in the app lives here (ALU brand palette).
-/// Widgets should never hard-code hex values - use these tokens instead.
+/// All app colours (ALU brand). Never hard-code hex values in widgets.
 class AppColors {
   // Brand
   static const Color primary = Color(0xFF012D6C); // ALU navy
@@ -18,7 +17,7 @@ class AppColors {
   static const Color border = Color(0xFFE3E8F2);
   static const Color error = Color(0xFFB91C1C);
 
-  // Status colors - keep these consistent everywhere in the app.
+  // Status colors
   static const Color submitted = Color(0xFFB45309);
   static const Color submittedBg = Color(0xFFFEF3C7);
   static const Color inProgress = Color(0xFF1D4ED8);

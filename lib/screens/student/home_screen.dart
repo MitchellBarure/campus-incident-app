@@ -15,7 +15,6 @@ import '../../widgets/incident_card.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/summary_card.dart';
 
-/// How many reports to show under "Recent Reports".
 const _recentCount = 3;
 
 class HomeScreen extends ConsumerWidget {
@@ -142,7 +141,6 @@ class _Greeting extends StatelessWidget {
   }
 }
 
-/// The navy hero banner with the "Report an Issue" button.
 class _ReportBanner extends StatelessWidget {
   const _ReportBanner();
 

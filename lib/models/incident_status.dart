@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 
-/// Where an incident is in its life: Submitted -> In Progress -> Resolved.
-///
-/// Each value carries its label and colours so status chips and the
-/// timeline look the same everywhere in the app.
+/// Submitted -> In Progress -> Resolved, each with its label and colours.
 enum IncidentStatus {
   submitted('Submitted', AppColors.submitted, AppColors.submittedBg),
   inProgress('In Progress', AppColors.inProgress, AppColors.inProgressBg),
@@ -21,9 +18,7 @@ enum IncidentStatus {
   /// Light background colour for pill-shaped chips.
   final Color backgroundColor;
 
-  /// The status staff most likely want next, pre-selected in the Update
-  /// Status sheet: Submitted -> In Progress -> Resolved. A resolved
-  /// incident suggests In Progress (re-opening it).
+  /// Pre-selected in the Update Status sheet. Resolved suggests re-opening.
   IncidentStatus get suggestedNext {
     switch (this) {
       case IncidentStatus.submitted:
@@ -35,8 +30,7 @@ enum IncidentStatus {
     }
   }
 
-  /// Turns the string stored in Firestore (e.g. "inProgress") back into a
-  /// value. Unknown values become [submitted].
+  /// Parses the Firestore string. Unknown values become [submitted].
   static IncidentStatus fromString(String? value) {
     return IncidentStatus.values.firstWhere(
       (status) => status.name == value,

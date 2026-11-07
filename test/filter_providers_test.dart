@@ -35,8 +35,7 @@ void main() {
     makeIncident('c', IncidentStatus.resolved, IncidentCategory.safety),
   ];
 
-  /// A ProviderContainer is a ProviderScope without widgets: it lets us
-  /// read and change providers directly in a test.
+  /// A ProviderContainer is a ProviderScope without widgets.
   Future<ProviderContainer> makeContainer() async {
     final container = ProviderContainer.test(
       overrides: [
@@ -44,8 +43,7 @@ void main() {
         allIncidentsProvider.overrideWith((ref) => Stream.value(incidents)),
       ],
     );
-    // Riverpod 3 pauses providers that nobody listens to, so we listen
-    // (like a screen would) before waiting for the first list.
+    // Riverpod 3 pauses unlistened providers, so listen like a screen would.
     container.listen(filteredIncidentsProvider, (_, _) {});
     await container.read(allIncidentsProvider.future);
     return container;

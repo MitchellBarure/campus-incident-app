@@ -20,9 +20,7 @@ class SignupScreen extends ConsumerStatefulWidget {
 class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  /// Errors are only checked when the user taps Submit at first. After
-  /// that, each field re-checks as it is edited, so an error disappears
-  /// as soon as it is fixed.
+  /// Validate on submit first, then live, so errors clear once fixed.
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -68,7 +66,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   void _goToLogin() {
-    // We usually arrive here with push from the login screen, so pop back.
+    // Usually pushed from login, so pop back.
     if (context.canPop()) {
       context.pop();
     } else {

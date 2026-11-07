@@ -5,7 +5,7 @@ import 'package:campus_incident_app/models/incident_category.dart';
 import 'package:campus_incident_app/models/incident_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Builds a test incident; only the fields the filters look at matter.
+/// A test incident; only the filtered fields matter.
 Incident makeIncident({
   required String id,
   IncidentStatus status = IncidentStatus.submitted,

@@ -4,8 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/filtered_incident_list.dart';
 import '../../widgets/incident_filter_bar.dart';
 
-/// Every report on campus, with search and filters.
-/// No pull-to-refresh: the Firestore stream updates the list live.
+/// Every report, with search and filters. The stream updates it live.
 class BrowseReportsScreen extends ConsumerWidget {
   const BrowseReportsScreen({super.key});
 

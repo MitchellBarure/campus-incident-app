@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../models/incident_category.dart';
 
-/// A scrollable row of category chips with icons, plus "All categories".
-///
-/// [selected] is null when "All categories" is chosen.
+/// Category chips. [selected] is null for "All categories".
 class CategoryFilterChips extends StatelessWidget {
   const CategoryFilterChips({
     super.key,

@@ -2,10 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'incident_status.dart';
 
-/// One step in an incident's timeline, e.g. "Moved to In Progress by
-/// Mr. Kamau on 6 Nov, note: Plumber booked for Friday".
-///
-/// Stored inside the incident's statusHistory array.
+/// One timeline entry, stored in the incident's statusHistory array.
 class StatusChange {
   const StatusChange({
     required this.status,
@@ -21,7 +18,6 @@ class StatusChange {
   final String changedBy;
   final String changedByName;
 
-  /// Optional message, usually from staff.
   final String? note;
   final DateTime at;
 
@@ -37,8 +33,7 @@ class StatusChange {
     );
   }
 
-  /// Uses a real Timestamp (not serverTimestamp), because Firestore does
-  /// not allow serverTimestamp() inside arrays.
+  /// A real Timestamp: Firestore doesn't allow serverTimestamp() in arrays.
   Map<String, dynamic> toMap() {
     return {
       'status': status.name,

@@ -1,17 +1,11 @@
-/// Form validators.
-///
-/// Each function follows Flutter's validator rule: return null when the
-/// value is valid, or an error message to show under the field.
-/// They are plain functions (no widgets), so they are easy to unit test.
+/// Form validators: return null if valid, otherwise the error message.
 class Validators {
   /// Firebase Auth rejects passwords shorter than 6 characters.
   static const int minPasswordLength = 6;
 
-  // A simple "something@something.something" check. Firebase does the
-  // strict check when signing in, this just catches obvious typos early.
+  // Only catches obvious typos; Firebase does the strict check.
   static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
-  /// A field that just must not be empty, e.g. "Title is required".
   static String? required(String? value, String fieldName) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
@@ -81,7 +75,6 @@ class Validators {
     return null;
   }
 
-  /// Checks the "confirm password" field matches the first password.
   static String? confirmPassword(String? value, String password) {
     if (value == null || value.isEmpty) {
       return 'Please confirm your password';

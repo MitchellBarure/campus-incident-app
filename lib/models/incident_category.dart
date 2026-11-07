@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// The kinds of campus issue a student can report.
-///
-/// This is an "enhanced enum": each value carries its own label and icon,
-/// so the UI never needs a separate switch statement to look them up.
+/// Issue categories. Each value carries its own label and icon
+/// (an "enhanced enum").
 enum IncidentCategory {
   facilities('Facilities', Icons.apartment_outlined),
   water('Water', Icons.water_drop_outlined),
@@ -18,8 +16,7 @@ enum IncidentCategory {
   final String label;
   final IconData icon;
 
-  /// Turns the string stored in Firestore (e.g. "water") back into a value.
-  /// Unknown values become [other], so old or bad data never crashes the app.
+  /// Parses the Firestore string. Unknown values become [other].
   static IncidentCategory fromString(String? value) {
     return IncidentCategory.values.firstWhere(
       (category) => category.name == value,

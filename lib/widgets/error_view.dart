@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 
-/// Shown when loading data fails, with a "Try again" button.
-///
-/// In debug builds it also shows the technical error. That matters for
-/// Firestore "missing index" errors, whose message contains the link
-/// that creates the index.
+/// Load error with a Try again button. Debug builds also show the raw
+/// error, which includes Firestore's index link.
 class ErrorView extends StatelessWidget {
   const ErrorView({
     super.key,

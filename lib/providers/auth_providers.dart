@@ -5,8 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_user.dart';
 import '../services/auth_repository.dart';
 
-// The Firebase objects are wrapped in providers so tests can swap them for
-// fakes (e.g. fake_cloud_firestore) with ProviderScope(overrides: [...]).
+// Wrapped in providers so tests can swap in fakes.
 
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
@@ -23,21 +22,15 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   );
 });
 
-/// The signed-in Firebase user, or null when signed out.
-///
-/// A StreamProvider listens to a stream and exposes its latest value as an
-/// AsyncValue, which is either loading, data, or error.
+/// The signed-in Firebase user, or null.
+/// A StreamProvider exposes a stream's latest value as loading/data/error.
 final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authRepositoryProvider).authStateChanges();
 });
 
-/// The signed-in user's profile from users/{uid} (name, email, role).
-///
-/// Emits null when signed out, or for a moment right after sign up before
-/// the profile document has been written.
+/// The signed-in user's profile (users/{uid}), or null while signed out.
 final currentUserProfileProvider = StreamProvider<AppUser?>((ref) {
-  // ref.watch means: when the auth state changes (login/logout), rebuild
-  // this provider so it listens to the new user's document.
+  // ref.watch rebuilds this provider when the user logs in or out.
   final user = ref.watch(authStateProvider).value;
   if (user == null) {
     return Stream.value(null);

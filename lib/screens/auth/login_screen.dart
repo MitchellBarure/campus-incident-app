@@ -20,9 +20,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  /// Errors are only checked when the user taps Submit at first. After
-  /// that, each field re-checks as it is edited, so an error disappears
-  /// as soon as it is fixed.
+  /// Validate on submit first, then live, so errors clear once fixed.
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -37,7 +35,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
-    // Runs every field's validator and shows the error messages.
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -48,13 +45,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             email: _emailController.text,
             password: _passwordController.text,
           );
-      // No navigation here: the router's redirect notices the login
-      // and sends the user to the right page for their role.
+      // The router redirect handles navigation after login.
     } on AuthFailure catch (e) {
       _showError(e.message);
     } finally {
-      // After a successful login this screen may already be gone,
-      // so only update it if it is still on screen.
+      // The screen may be gone after a successful login.
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -81,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // App logo: a rounded navy tile with a campaign icon.
+                  // App logo
                   Center(
                     child: Container(
                       padding: const EdgeInsets.all(18),
@@ -140,8 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     icon: Icons.lock_outline,
                     isPassword: true,
                     textInputAction: TextInputAction.done,
-                    // On login we only check it isn't empty; the length
-                    // rule matters when creating a password, not here.
+                    // Length rules only apply when creating a password.
                     validator: (value) =>
                         Validators.required(value, 'Password'),
                   ),

@@ -16,7 +16,7 @@ Future<void> showUpdateStatusSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
-    // Lets the sheet move up above the keyboard when typing a note.
+    // Lets the sheet rise above the keyboard.
     isScrollControlled: true,
     showDragHandle: true,
     builder: (_) => UpdateStatusSheet(incident: incident, staff: staff),
@@ -52,7 +52,7 @@ class _UpdateStatusSheetState extends ConsumerState<UpdateStatusSheet> {
 
   Future<void> _save() async {
     setState(() => _isSaving = true);
-    // Grab these before the await, while the sheet is still on screen.
+    // Read before the await, while the sheet is still mounted.
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
@@ -86,13 +86,12 @@ class _UpdateStatusSheetState extends ConsumerState<UpdateStatusSheet> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    // Staff can choose any status except the one it already has.
+    // Any status except the current one.
     final options = IncidentStatus.values
         .where((status) => status != widget.incident.status)
         .toList();
 
     return Padding(
-      // Push the sheet up by the keyboard's height.
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
@@ -153,7 +152,6 @@ class _UpdateStatusSheetState extends ConsumerState<UpdateStatusSheet> {
   }
 }
 
-/// One selectable status, shown in its own colour.
 class _StatusOption extends StatelessWidget {
   const _StatusOption({
     required this.status,

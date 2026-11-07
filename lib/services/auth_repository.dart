@@ -14,15 +14,13 @@ class AuthFailure implements Exception {
 }
 
 /// Turns a Firebase Auth error code into a friendly message.
-/// Kept as a plain function so it can be unit tested.
 String friendlyAuthMessage(String code) {
   switch (code) {
     case 'invalid-email':
       return 'That email address is not valid.';
     case 'user-disabled':
       return 'This account has been disabled.';
-    // Newer Firebase versions return 'invalid-credential' for both a wrong
-    // password and an unknown email (so attackers can't guess emails).
+    // Covers wrong password and unknown email (hides which emails exist).
     case 'user-not-found':
     case 'wrong-password':
     case 'invalid-credential':
@@ -40,13 +38,9 @@ String friendlyAuthMessage(String code) {
   }
 }
 
-/// Everything to do with signing in and the user's profile document.
-///
-/// Screens never talk to Firebase directly; they go through this class.
-/// That keeps Firebase code in one place and makes screens easier to test.
+/// All auth and profile calls, so screens never touch Firebase directly.
 class AuthRepository {
-  // `this._auth` fills the private field directly. Callers still pass it
-  // without the underscore: AuthRepository(auth: ..., firestore: ...).
+  // `this._auth` sets the private field; callers still write `auth:`.
   AuthRepository({required this._auth, required this._firestore});
 
   final FirebaseAuth _auth;
@@ -55,11 +49,9 @@ class AuthRepository {
   CollectionReference<Map<String, dynamic>> get _users =>
       _firestore.collection('users');
 
-  /// Emits the signed-in Firebase user, or null when signed out.
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
-  /// Emits the profile at users/{uid} every time it changes.
-  /// Emits null while the document does not exist yet (just after sign up).
+  /// The profile at users/{uid}, or null until it exists.
   Stream<AppUser?> watchUserProfile(String uid) {
     return _users.doc(uid).snapshots().map((snapshot) {
       final data = snapshot.data();
@@ -68,8 +60,7 @@ class AuthRepository {
     });
   }
 
-  /// Creates the Firebase account, then the users/{uid} profile document.
-  /// Everyone signs up as a student; staff are promoted in the Console.
+  /// Creates the account and its users/{uid} profile, always as a student.
   Future<void> signUp({
     required String name,
     required String email,
@@ -95,8 +86,7 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw AuthFailure(friendlyAuthMessage(e.code));
     } on FirebaseException catch (_) {
-      // The account was created but the profile could not be saved
-      // (e.g. Firestore rules or no connection).
+      // Account created but profile not saved (rules or connection).
       throw const AuthFailure(
         'Your account was created but your profile could not be saved. '
         'Please try again.',

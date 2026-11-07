@@ -36,13 +36,12 @@ const student = AppUser(
 void main() {
   late FakeFirebaseFirestore firestore;
 
-  /// Shows the Report screen with fake Firebase pieces swapped in.
-  /// Uses the default theme so the test doesn't download Google Fonts.
+  /// Shows the Report screen with fakes.
+  /// The default theme avoids downloading Google Fonts.
   Future<void> pumpReportScreen(WidgetTester tester) async {
     firestore = FakeFirebaseFirestore();
 
-    // A tall phone-sized screen. ListView only builds what fits on screen,
-    // and the default test screen is too short to show the whole form.
+    // Tall screen so the ListView builds the whole form.
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);

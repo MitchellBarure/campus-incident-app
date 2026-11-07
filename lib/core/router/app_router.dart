@@ -16,13 +16,12 @@ import '../../screens/student/my_reports_screen.dart';
 import '../../screens/student/report_incident_screen.dart';
 import '../../screens/student/student_shell.dart';
 
-/// All route paths in one place, so we never mistype a path string.
 class AppRoutes {
   static const splash = '/splash';
   static const login = '/login';
   static const signup = '/signup';
 
-  // Student tabs (shown inside the bottom navigation bar).
+  // Student tabs (bottom navigation bar).
   static const home = '/home';
   static const browse = '/reports';
   static const myReports = '/my-reports';
@@ -32,14 +31,13 @@ class AppRoutes {
   static const reportIncident = '/report';
   static const staffDashboard = '/staff';
 
-  // Staff get their own profile page, outside the student bottom bar.
+  // Staff pages (no bottom bar).
   static const staffProfile = '/staff/profile';
 
   static String incidentDetails(String id) => '/incident/$id';
 }
 
-/// Pages only students should see (the bottom-bar tabs and the report
-/// form). Staff are sent to their dashboard instead.
+/// Staff are redirected away from these pages.
 const _studentOnlyRoutes = {
   AppRoutes.home,
   AppRoutes.browse,
@@ -48,11 +46,8 @@ const _studentOnlyRoutes = {
   AppRoutes.reportIncident,
 };
 
-/// Decides where a user should go, based on login state and role.
-///
-/// Returns the path to redirect to, or null to stay on [location].
-/// [role] is null while the profile is still loading (or not created yet).
-/// It is a plain function (no Firebase) so it can be unit tested.
+/// Returns the page to redirect to, or null to stay on [location].
+/// [role] is null while the profile is still loading.
 String? authRedirect({
   required String location,
   required bool isAuthLoading,
@@ -63,22 +58,22 @@ String? authRedirect({
       location == AppRoutes.login || location == AppRoutes.signup;
   final onSplash = location == AppRoutes.splash;
 
-  // 1. Firebase hasn't told us yet whether someone is logged in.
+  // 1. Auth state not known yet.
   if (isAuthLoading) {
     return onSplash ? null : AppRoutes.splash;
   }
 
-  // 2. Logged out: only the login and sign up pages are allowed.
+  // 2. Logged out: only login and sign up.
   if (!isLoggedIn) {
     return onAuthPage ? null : AppRoutes.login;
   }
 
-  // 3. Logged in, but we don't know the role yet: wait on the splash.
+  // 3. Logged in, role still loading: wait on the splash.
   if (role == null) {
     return onSplash ? null : AppRoutes.splash;
   }
 
-  // 4. Logged in with a known role: send each role to its own start page.
+  // 4. Send each role to its own start page.
   final startPage = role == UserRole.staff
       ? AppRoutes.staffDashboard
       : AppRoutes.home;
@@ -86,7 +81,6 @@ String? authRedirect({
   if (onAuthPage || onSplash) {
     return startPage;
   }
-  // Every staff page starts with /staff (dashboard, staff profile).
   if (role == UserRole.student &&
       location.startsWith(AppRoutes.staffDashboard)) {
     return startPage;
@@ -97,11 +91,8 @@ String? authRedirect({
   return null;
 }
 
-/// Provides the app's GoRouter.
-///
-/// The router is created once. When the login state or the profile changes,
-/// we bump [refreshNotifier], which tells go_router to run [authRedirect]
-/// again so the user lands on the right page.
+/// The app's router. [refreshNotifier] re-runs [authRedirect] whenever the
+/// login state or profile changes.
 final routerProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = ValueNotifier<int>(0);
   ref.onDispose(refreshNotifier.dispose);
@@ -138,8 +129,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SignupScreen(),
       ),
 
-      // ShellRoute keeps the bottom navigation bar visible while the
-      // child route (the current tab) changes.
+      // ShellRoute keeps the bottom bar visible while tabs change.
       ShellRoute(
         builder: (context, state, child) => StudentShell(child: child),
         routes: [

@@ -5,11 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../core/theme/app_colors.dart';
 
-/// The optional photo area on the Report Incident form.
-///
-/// With no photo it shows an "Add a photo" box. With a photo it shows a
-/// preview and a remove button. The parent screen does the actual picking,
-/// this widget only asks it to via [onPick].
+/// Photo area on the report form. The parent does the picking via [onPick].
 class PhotoPickerField extends StatelessWidget {
   const PhotoPickerField({
     super.key,
@@ -104,7 +100,6 @@ class PhotoPickerField extends StatelessWidget {
   }
 }
 
-/// The empty bordered box (also used while the photo is processing).
 class _PhotoBox extends StatelessWidget {
   const _PhotoBox({required this.child, this.onTap});
 

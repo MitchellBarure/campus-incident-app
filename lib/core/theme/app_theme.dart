@@ -5,7 +5,7 @@ import 'app_colors.dart';
 
 /// Builds the app's light Material 3 theme from the tokens in [AppColors].
 class AppTheme {
-  // Shared corner radius for cards, inputs and buttons (matches the sample UI).
+  // Corner radius for cards, inputs and buttons.
   static const double radius = 16;
 
   static ThemeData light() {
@@ -86,7 +86,7 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
-      // The raised center "Report" button uses the ALU red accent.
+      // The center Report button uses the ALU red.
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,

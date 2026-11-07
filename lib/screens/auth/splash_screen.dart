@@ -5,11 +5,8 @@ import '../../core/theme/app_colors.dart';
 import '../../providers/auth_providers.dart';
 import '../../widgets/loading_view.dart';
 
-/// Shown while we check whether the user is logged in and load their role.
-///
-/// The router moves the user away from here automatically once it knows
-/// where they belong. If loading the profile fails, we show the error and
-/// a sign out button so the user is never stuck.
+/// Shown while checking login and loading the role. If the profile fails
+/// to load, it shows the error and a sign out button.
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 

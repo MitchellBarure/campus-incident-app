@@ -4,12 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 
-/// Wraps the student tabs with the bottom navigation bar and the raised
-/// circular "Report" button in the middle.
+/// Student tabs with the bottom bar and the raised Report button.
 class StudentShell extends StatelessWidget {
   const StudentShell({super.key, required this.child});
 
-  /// The screen for the currently selected tab.
   final Widget child;
 
   @override
@@ -68,7 +66,6 @@ class StudentShell extends StatelessWidget {
   }
 }
 
-/// A single icon + label button in the bottom bar.
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.icon,

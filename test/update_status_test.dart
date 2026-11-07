@@ -26,8 +26,7 @@ class FakeImageService extends ImageService {
   Future<Uint8List?> loadImage(String incidentId) async => null;
 }
 
-/// A signed-in Firebase user. Fake lets us implement only the uid getter;
-/// the providers read nothing else.
+/// Fake implements only uid, the one field the providers read.
 class FakeFirebaseUser extends Fake implements User {
   FakeFirebaseUser(this.uid);
 
@@ -117,8 +116,7 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
-    // Widget tests run on a fake clock; runAsync lets this real Firestore
-    // read finish instead of waiting forever.
+    // runAsync lets this real Firestore read finish on the fake clock.
     final updated = await tester.runAsync(
       () => repository.watchIncident(incidentId).first,
     );

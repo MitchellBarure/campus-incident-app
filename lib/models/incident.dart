@@ -4,7 +4,7 @@ import 'incident_category.dart';
 import 'incident_status.dart';
 import 'status_change.dart';
 
-/// A reported campus issue, stored in Firestore at incidents/{id}.
+/// A reported campus issue at incidents/{id}.
 class Incident {
   const Incident({
     required this.id,
@@ -27,7 +27,6 @@ class Incident {
   final String description;
   final IncidentCategory category;
 
-  /// Free text, e.g. "Block B - Room 204".
   final String location;
   final IncidentStatus status;
   final String reporterId;
@@ -69,9 +68,7 @@ class Incident {
     );
   }
 
-  /// The id is the document id, so it is not stored inside the document.
-  /// When creating a new incident the repository replaces createdAt and
-  /// updatedAt with serverTimestamp().
+  /// Excludes id (the doc id). The repository sets the dates on create.
   Map<String, dynamic> toMap() {
     return {
       'title': title,
@@ -90,8 +87,7 @@ class Incident {
   }
 }
 
-/// Right after a write, a serverTimestamp() field is briefly null on this
-/// device until the server fills it in. We show "now" in the meantime.
+/// Server timestamps are briefly null after a write, so fall back to now.
 DateTime _readDate(Object? value) {
   if (value is Timestamp) return value.toDate();
   return DateTime.now();

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 
-/// Shown when a list has nothing in it, e.g. "No reports yet".
-/// [action] is an optional button, like "Report an Issue".
+/// Shown when a list is empty, with an optional [action] button.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,

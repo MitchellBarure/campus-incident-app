@@ -7,12 +7,8 @@ import '../models/incident_status.dart';
 import 'auth_providers.dart';
 import 'incident_providers.dart';
 
-// A Notifier holds a piece of state (here: a filter value) plus the
-// methods that are allowed to change it. Widgets watch the provider to
-// read the value, and call the methods to change it.
-//
-// Each build() watches authStateProvider, so all filters reset when
-// someone logs out and a different user logs in.
+// A Notifier holds a value plus the methods allowed to change it.
+// Each one watches the auth state, so filters reset when the user changes.
 
 class SearchTextNotifier extends Notifier<String> {
   @override
@@ -58,10 +54,8 @@ final categoryFilterProvider =
       CategoryFilterNotifier.new,
     );
 
-/// All incidents with the current search and filters applied.
-///
-/// Rebuilds automatically when the incidents stream or any filter changes.
-/// whenData keeps the loading/error states and only transforms the data.
+/// All incidents with the search and filters applied.
+/// whenData keeps loading/error states and only transforms the data.
 final filteredIncidentsProvider = Provider<AsyncValue<List<Incident>>>((ref) {
   final incidents = ref.watch(allIncidentsProvider);
   final query = ref.watch(searchTextProvider);
@@ -74,14 +68,12 @@ final filteredIncidentsProvider = Provider<AsyncValue<List<Incident>>>((ref) {
   );
 });
 
-/// True when any search text or filter is active.
 final hasActiveFiltersProvider = Provider<bool>((ref) {
   return ref.watch(searchTextProvider).trim().isNotEmpty ||
       ref.watch(statusFilterProvider) != null ||
       ref.watch(categoryFilterProvider) != null;
 });
 
-/// Clears the search and both filters.
 void clearAllFilters(WidgetRef ref) {
   ref.read(searchTextProvider.notifier).set('');
   ref.read(statusFilterProvider.notifier).set(null);

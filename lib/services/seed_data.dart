@@ -98,12 +98,8 @@ const _samples = [
   ),
 ];
 
-/// DEBUG ONLY: creates 8 realistic sample reports as [user].
-///
-/// The security rules only let you create reports as yourself with status
-/// "submitted". If [user] is staff, some reports are then moved to
-/// In Progress / Resolved with notes, so every status has data.
-/// Returns how many reports were created.
+/// Debug only: creates 8 sample reports as [user]. If [user] is staff,
+/// some are moved on so every status has data. Returns how many.
 Future<int> seedSampleIncidents(
   IncidentRepository repository,
   AppUser user,

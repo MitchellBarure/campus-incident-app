@@ -6,8 +6,7 @@ import '../providers/filter_providers.dart';
 import 'category_filter_chips.dart';
 import 'status_filter_chips.dart';
 
-/// Search box + status chips + category chips, connected to the filter
-/// providers. Shared by the Browse screen and the Staff dashboard.
+/// Search box and filter chips, shared by Browse and the Staff dashboard.
 class IncidentFilterBar extends ConsumerStatefulWidget {
   const IncidentFilterBar({super.key});
 
@@ -21,7 +20,7 @@ class _IncidentFilterBarState extends ConsumerState<IncidentFilterBar> {
   @override
   void initState() {
     super.initState();
-    // Start with whatever was typed before (e.g. when coming back to a tab).
+    // Keep text typed earlier, e.g. when returning to the tab.
     _searchController = TextEditingController(
       text: ref.read(searchTextProvider),
     );
@@ -40,8 +39,7 @@ class _IncidentFilterBarState extends ConsumerState<IncidentFilterBar> {
 
   @override
   Widget build(BuildContext context) {
-    // Keep the text box in sync if the search is cleared elsewhere
-    // (e.g. by the "Clear filters" button).
+    // Stay in sync when "Clear filters" empties the search.
     ref.listen(searchTextProvider, (_, text) {
       if (text != _searchController.text) _searchController.text = text;
     });
@@ -63,8 +61,7 @@ class _IncidentFilterBarState extends ConsumerState<IncidentFilterBar> {
               Icons.search,
               color: AppColors.textSecondary,
             ),
-            // Rebuilds with the text so the clear button shows only when
-            // there is something to clear.
+            // Rebuilds so the clear button only shows when there is text.
             suffixIcon: ValueListenableBuilder<TextEditingValue>(
               valueListenable: _searchController,
               builder: (context, value, _) {

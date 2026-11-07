@@ -19,15 +19,11 @@ class TimelineStep {
   /// True if the incident has got to this step (or past it).
   final bool isReached;
 
-  /// The most recent history entry for this step, if there is one.
-  /// It can be null for a reached step that staff skipped over
-  /// (e.g. moved straight from Submitted to Resolved).
+  /// Latest history entry for this step. Null if staff skipped it.
   final StatusChange? change;
 }
 
 /// Works out the three timeline steps for an incident.
-///
-/// A plain function (no widgets), so it can be unit tested.
 List<TimelineStep> buildTimelineSteps(Incident incident) {
   final currentIndex = IncidentStatus.values.indexOf(incident.status);
 
@@ -52,8 +48,7 @@ StatusChange? _latestChangeFor(
   return latest;
 }
 
-/// Vertical timeline: Submitted -> In Progress -> Resolved, with dates,
-/// who made each change, and any note.
+/// Vertical timeline with dates, who made each change, and notes.
 class StatusTimeline extends StatelessWidget {
   const StatusTimeline({super.key, required this.incident});
 

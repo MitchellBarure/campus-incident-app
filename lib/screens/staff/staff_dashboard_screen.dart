@@ -12,8 +12,7 @@ import '../../widgets/filtered_incident_list.dart';
 import '../../widgets/incident_filter_bar.dart';
 import '../../widgets/summary_card.dart';
 
-/// Where staff land after login: counts by status, then every incident
-/// (newest first) with the same search and filters as Browse.
+/// Staff home: status counts and every incident, with search and filters.
 class StaffDashboardScreen extends ConsumerWidget {
   const StaffDashboardScreen({super.key});
 
@@ -52,8 +51,7 @@ class StaffDashboardScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
-          // While loading (or on error) the list below shows the state,
-          // so the summary simply waits.
+          // The list below shows the loading/error state.
           if (allIncidents != null) ...[
             SummaryGrid(
               counts: IncidentCounts.from(allIncidents),

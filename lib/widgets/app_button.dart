@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// The app's main full-width button.
-///
-/// While [isLoading] is true it shows a small spinner and ignores taps,
-/// so a form can't be submitted twice.
+/// Full-width button. Shows a spinner and ignores taps while [isLoading].
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,

@@ -24,8 +24,7 @@ class MyReportsScreen extends ConsumerStatefulWidget {
 }
 
 class _MyReportsScreenState extends ConsumerState<MyReportsScreen> {
-  /// null means "All". This filter only matters on this screen, so a
-  /// simple setState is enough (no provider needed).
+  /// Null means All. Only used here, so setState is enough.
   IncidentStatus? _statusFilter;
 
   @override
@@ -104,7 +103,6 @@ class _MyReportsScreenState extends ConsumerState<MyReportsScreen> {
   }
 }
 
-/// Avatar, name and three quick stats at the top of My Reports.
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({required this.profile, required this.counts});
 

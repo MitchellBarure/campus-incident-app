@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../models/incident_category.dart';
 
-/// A grid of icon tiles, one per category. Tapping a tile selects it.
-///
-/// Used on the Report Incident form. Set [errorText] to show a message
-/// under the grid (e.g. when the user forgot to pick a category).
+/// Category tiles for the report form, with an optional [errorText].
 class CategorySelector extends StatelessWidget {
   const CategorySelector({
     super.key,
@@ -29,8 +26,7 @@ class CategorySelector extends StatelessWidget {
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           childAspectRatio: 0.85,
-          // The grid sits inside a scrolling form, so it should take only
-          // the space it needs and not scroll by itself.
+          // Sized to its content inside the scrolling form.
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: [
@@ -74,7 +70,7 @@ class _CategoryTile extends StatelessWidget {
       button: true,
       selected: isSelected,
       label: category.label,
-      // The tile's own text would repeat the label for screen readers.
+      // Stops screen readers reading the label twice.
       excludeSemantics: true,
       child: Material(
         color: isSelected
