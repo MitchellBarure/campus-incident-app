@@ -64,17 +64,16 @@ List<Widget> _buildCards(
     ];
   }
 
-  final countLabel =
-      incidents.length == 1 ? '1 report' : '${incidents.length} reports';
+  final countLabel = incidents.length == 1
+      ? '1 report'
+      : '${incidents.length} reports';
 
   return [
     Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         countLabel,
-        style: Theme.of(context)
-            .textTheme
-            .labelMedium
+        style: Theme.of(context).textTheme.labelMedium
             ?.copyWith(color: AppColors.textSecondary),
       ),
     ),

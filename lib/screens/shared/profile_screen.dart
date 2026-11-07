@@ -126,10 +126,8 @@ class _RoleBadge extends StatelessWidget {
       ),
       child: Text(
         role.label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
+        style: Theme.of(context).textTheme.labelLarge
+            ?.copyWith(color: color, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -178,9 +176,7 @@ class _SeedDataButtonState extends ConsumerState<_SeedDataButton> {
       children: [
         Text(
           'Developer tools (debug builds only)',
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
+          style: Theme.of(context).textTheme.labelSmall
               ?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 8),

@@ -9,16 +9,11 @@ Future<void> main() async {
   // Needed before calling native code (Firebase) ahead of runApp.
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // ProviderScope stores the state of every Riverpod provider in the app.
   runApp(
-    const ProviderScope(
-      retry: _noAutomaticRetry,
-      child: CampusIncidentApp(),
-    ),
+    const ProviderScope(retry: _noAutomaticRetry, child: CampusIncidentApp()),
   );
 }
 

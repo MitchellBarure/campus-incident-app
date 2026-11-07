@@ -94,9 +94,7 @@ class _IconText extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
+            style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: AppColors.textSecondary),
           ),
         ),
@@ -110,7 +108,10 @@ class _IconText extends StatelessWidget {
 final Map<String, Uint8List> _thumbnailCache = {};
 
 Uint8List _decodeThumbnail(String base64Text) {
-  return _thumbnailCache.putIfAbsent(base64Text, () => base64Decode(base64Text));
+  return _thumbnailCache.putIfAbsent(
+    base64Text,
+    () => base64Decode(base64Text),
+  );
 }
 
 /// The photo thumbnail, or the category icon when there is no photo.

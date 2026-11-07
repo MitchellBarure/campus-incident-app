@@ -22,8 +22,9 @@ class _IncidentFilterBarState extends ConsumerState<IncidentFilterBar> {
   void initState() {
     super.initState();
     // Start with whatever was typed before (e.g. when coming back to a tab).
-    _searchController =
-        TextEditingController(text: ref.read(searchTextProvider));
+    _searchController = TextEditingController(
+      text: ref.read(searchTextProvider),
+    );
   }
 
   @override
@@ -58,7 +59,10 @@ class _IncidentFilterBarState extends ConsumerState<IncidentFilterBar> {
           decoration: InputDecoration(
             hintText: 'Search title, location, reporter...',
             hintStyle: const TextStyle(color: AppColors.textSecondary),
-            prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+            prefixIcon: const Icon(
+              Icons.search,
+              color: AppColors.textSecondary,
+            ),
             // Rebuilds with the text so the clear button shows only when
             // there is something to clear.
             suffixIcon: ValueListenableBuilder<TextEditingValue>(

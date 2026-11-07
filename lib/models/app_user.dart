@@ -54,10 +54,6 @@ class AppUser {
   /// not stored again inside the document. createdAt is set by the
   /// repository with serverTimestamp(), so it is not included here.
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'email': email,
-      'role': role.name,
-    };
+    return {'name': name, 'email': email, 'role': role.name};
   }
 }

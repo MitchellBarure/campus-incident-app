@@ -99,11 +99,11 @@ void main() {
 
     test('lets staff open their own profile but not the student tabs', () {
       String? redirectStaff(String location) => authRedirect(
-            location: location,
-            isAuthLoading: false,
-            isLoggedIn: true,
-            role: UserRole.staff,
-          );
+        location: location,
+        isAuthLoading: false,
+        isLoggedIn: true,
+        role: UserRole.staff,
+      );
 
       expect(redirectStaff(AppRoutes.staffProfile), isNull);
       expect(redirectStaff(AppRoutes.profile), AppRoutes.staffDashboard);

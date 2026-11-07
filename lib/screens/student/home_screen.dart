@@ -74,7 +74,8 @@ class HomeScreen extends ConsumerWidget {
         const EmptyState(
           icon: Icons.inbox_outlined,
           title: 'No reports yet',
-          message: 'Issues you report will show up here so you can '
+          message:
+              'Issues you report will show up here so you can '
               'follow their progress.',
         )
       else
@@ -83,8 +84,7 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: IncidentCard(
               incident: incident,
-              onTap: () =>
-                  context.push(AppRoutes.incidentDetails(incident.id)),
+              onTap: () => context.push(AppRoutes.incidentDetails(incident.id)),
             ),
           ),
     ];
@@ -224,9 +224,7 @@ class _SectionTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
+            style: Theme.of(context).textTheme.titleMedium
                 ?.copyWith(fontWeight: FontWeight.w600),
           ),
         ),

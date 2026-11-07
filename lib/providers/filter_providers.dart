@@ -44,16 +44,19 @@ class CategoryFilterNotifier extends Notifier<IncidentCategory?> {
   void set(IncidentCategory? category) => state = category;
 }
 
-final searchTextProvider =
-    NotifierProvider<SearchTextNotifier, String>(SearchTextNotifier.new);
+final searchTextProvider = NotifierProvider<SearchTextNotifier, String>(
+  SearchTextNotifier.new,
+);
 
 final statusFilterProvider =
     NotifierProvider<StatusFilterNotifier, IncidentStatus?>(
-        StatusFilterNotifier.new);
+      StatusFilterNotifier.new,
+    );
 
 final categoryFilterProvider =
     NotifierProvider<CategoryFilterNotifier, IncidentCategory?>(
-        CategoryFilterNotifier.new);
+      CategoryFilterNotifier.new,
+    );
 
 /// All incidents with the current search and filters applied.
 ///
@@ -66,12 +69,8 @@ final filteredIncidentsProvider = Provider<AsyncValue<List<Incident>>>((ref) {
   final category = ref.watch(categoryFilterProvider);
 
   return incidents.whenData(
-    (list) => filterIncidents(
-      list,
-      query: query,
-      status: status,
-      category: category,
-    ),
+    (list) =>
+        filterIncidents(list, query: query, status: status, category: category),
   );
 });
 

@@ -7,7 +7,11 @@ import 'package:campus_incident_app/providers/incident_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Incident makeIncident(String id, IncidentStatus status, IncidentCategory category) {
+Incident makeIncident(
+  String id,
+  IncidentStatus status,
+  IncidentCategory category,
+) {
   return Incident(
     id: id,
     title: 'Issue $id',

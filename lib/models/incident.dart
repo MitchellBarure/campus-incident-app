@@ -61,8 +61,10 @@ class Incident {
       createdAt: _readDate(map['createdAt']),
       updatedAt: _readDate(map['updatedAt']),
       statusHistory: history
-          .map((entry) =>
-              StatusChange.fromMap(Map<String, dynamic>.from(entry as Map)))
+          .map(
+            (entry) =>
+                StatusChange.fromMap(Map<String, dynamic>.from(entry as Map)),
+          )
           .toList(),
     );
   }

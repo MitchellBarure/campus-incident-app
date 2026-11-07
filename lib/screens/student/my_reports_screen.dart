@@ -85,7 +85,8 @@ class _MyReportsScreenState extends ConsumerState<MyReportsScreen> {
       return EmptyState(
         icon: Icons.filter_alt_off_outlined,
         title: 'Nothing here',
-        message: 'You have no reports that are '
+        message:
+            'You have no reports that are '
             '${_statusFilter!.label.toLowerCase()}.',
       );
     }

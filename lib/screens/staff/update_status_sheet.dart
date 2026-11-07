@@ -57,7 +57,9 @@ class _UpdateStatusSheetState extends ConsumerState<UpdateStatusSheet> {
     final navigator = Navigator.of(context);
 
     try {
-      await ref.read(incidentRepositoryProvider).updateStatus(
+      await ref
+          .read(incidentRepositoryProvider)
+          .updateStatus(
             incidentId: widget.incident.id,
             newStatus: _selected,
             changedBy: widget.staff,
@@ -194,9 +196,9 @@ class _StatusOption extends StatelessWidget {
                 Text(
                   status.label,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isSelected ? status.color : AppColors.textPrimary,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? status.color : AppColors.textPrimary,
+                  ),
                 ),
               ],
             ),

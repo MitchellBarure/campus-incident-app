@@ -79,8 +79,9 @@ String? authRedirect({
   }
 
   // 4. Logged in with a known role: send each role to its own start page.
-  final startPage =
-      role == UserRole.staff ? AppRoutes.staffDashboard : AppRoutes.home;
+  final startPage = role == UserRole.staff
+      ? AppRoutes.staffDashboard
+      : AppRoutes.home;
 
   if (onAuthPage || onSplash) {
     return startPage;

@@ -19,24 +19,24 @@ void main() {
     });
 
     test('has the seven required categories', () {
-      expect(
-        IncidentCategory.values.map((c) => c.label),
-        [
-          'Facilities',
-          'Water',
-          'Electricity',
-          'Furniture',
-          'Sanitation',
-          'Safety',
-          'Other',
-        ],
-      );
+      expect(IncidentCategory.values.map((c) => c.label), [
+        'Facilities',
+        'Water',
+        'Electricity',
+        'Furniture',
+        'Sanitation',
+        'Safety',
+        'Other',
+      ]);
     });
   });
 
   group('IncidentStatus.fromString', () {
     test('reads the camelCase value used in Firestore', () {
-      expect(IncidentStatus.fromString('inProgress'), IncidentStatus.inProgress);
+      expect(
+        IncidentStatus.fromString('inProgress'),
+        IncidentStatus.inProgress,
+      );
       expect(IncidentStatus.inProgress.label, 'In Progress');
     });
 
@@ -82,34 +82,34 @@ void main() {
     final updated = DateTime(2026, 11, 6, 11, 0);
 
     Map<String, dynamic> sampleMap() => {
-          'title': 'Leaking tap',
-          'description': 'The tap in the 2nd floor washroom keeps running.',
-          'category': 'water',
-          'location': 'Block B - 2nd floor',
+      'title': 'Leaking tap',
+      'description': 'The tap in the 2nd floor washroom keeps running.',
+      'category': 'water',
+      'location': 'Block B - 2nd floor',
+      'status': 'inProgress',
+      'reporterId': 'student-1',
+      'reporterName': 'Amina',
+      'hasImage': true,
+      'thumbnailBase64': 'abc123',
+      'createdAt': Timestamp.fromDate(created),
+      'updatedAt': Timestamp.fromDate(updated),
+      'statusHistory': [
+        {
+          'status': 'submitted',
+          'changedBy': 'student-1',
+          'changedByName': 'Amina',
+          'note': null,
+          'at': Timestamp.fromDate(created),
+        },
+        {
           'status': 'inProgress',
-          'reporterId': 'student-1',
-          'reporterName': 'Amina',
-          'hasImage': true,
-          'thumbnailBase64': 'abc123',
-          'createdAt': Timestamp.fromDate(created),
-          'updatedAt': Timestamp.fromDate(updated),
-          'statusHistory': [
-            {
-              'status': 'submitted',
-              'changedBy': 'student-1',
-              'changedByName': 'Amina',
-              'note': null,
-              'at': Timestamp.fromDate(created),
-            },
-            {
-              'status': 'inProgress',
-              'changedBy': 'staff-1',
-              'changedByName': 'Mr. Kamau',
-              'note': 'Plumber booked',
-              'at': Timestamp.fromDate(updated),
-            },
-          ],
-        };
+          'changedBy': 'staff-1',
+          'changedByName': 'Mr. Kamau',
+          'note': 'Plumber booked',
+          'at': Timestamp.fromDate(updated),
+        },
+      ],
+    };
 
     test('fromMap reads every field', () {
       final incident = Incident.fromMap('inc-1', sampleMap());

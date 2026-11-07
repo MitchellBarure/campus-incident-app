@@ -30,19 +30,12 @@ class AppButton extends StatelessWidget {
     } else if (icon != null) {
       child = Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon),
-          const SizedBox(width: 8),
-          Text(label),
-        ],
+        children: [Icon(icon), const SizedBox(width: 8), Text(label)],
       );
     } else {
       child = Text(label);
     }
 
-    return FilledButton(
-      onPressed: isLoading ? null : onPressed,
-      child: child,
-    );
+    return FilledButton(onPressed: isLoading ? null : onPressed, child: child);
   }
 }

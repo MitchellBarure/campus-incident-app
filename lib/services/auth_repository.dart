@@ -47,10 +47,7 @@ String friendlyAuthMessage(String code) {
 class AuthRepository {
   // `this._auth` fills the private field directly. Callers still pass it
   // without the underscore: AuthRepository(auth: ..., firestore: ...).
-  AuthRepository({
-    required this._auth,
-    required this._firestore,
-  });
+  AuthRepository({required this._auth, required this._firestore});
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -107,10 +104,7 @@ class AuthRepository {
     }
   }
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     try {
       await _auth.signInWithEmailAndPassword(
         email: email.trim(),

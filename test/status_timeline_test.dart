@@ -10,8 +10,7 @@ StatusChange change(IncidentStatus status, {String? note, int day = 6}) {
   return StatusChange(
     status: status,
     changedBy: status == IncidentStatus.submitted ? 'student-1' : 'staff-1',
-    changedByName:
-        status == IncidentStatus.submitted ? 'Amina' : 'Mr. Kamau',
+    changedByName: status == IncidentStatus.submitted ? 'Amina' : 'Mr. Kamau',
     note: note,
     at: DateTime(2026, 11, day, 10),
   );
@@ -38,8 +37,9 @@ void main() {
   group('buildTimelineSteps', () {
     test('a new incident has only the first step reached', () {
       final steps = buildTimelineSteps(
-        incidentWith(IncidentStatus.submitted,
-            [change(IncidentStatus.submitted)]),
+        incidentWith(IncidentStatus.submitted, [
+          change(IncidentStatus.submitted),
+        ]),
       );
 
       expect(steps.map((s) => s.isReached), [true, false, false]);
@@ -85,8 +85,9 @@ void main() {
     });
   });
 
-  testWidgets('StatusTimeline shows labels, reporter and notes',
-      (tester) async {
+  testWidgets('StatusTimeline shows labels, reporter and notes', (
+    tester,
+  ) async {
     final incident = incidentWith(IncidentStatus.inProgress, [
       change(IncidentStatus.submitted),
       change(IncidentStatus.inProgress, note: 'Plumber booked', day: 7),

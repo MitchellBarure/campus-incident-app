@@ -14,8 +14,7 @@ class FakeImageService extends ImageService {
     required String incidentId,
     required String ownerId,
     required Uint8List bytes,
-  }) async =>
-      'fake/$incidentId';
+  }) async => 'fake/$incidentId';
 
   @override
   Future<Uint8List?> loadImage(String incidentId) async => null;

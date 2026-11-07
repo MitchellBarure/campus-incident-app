@@ -21,10 +21,7 @@ class PhotoUploadFailure implements Exception {
 
 /// All reads and writes for incidents go through this class.
 class IncidentRepository {
-  IncidentRepository({
-    required this._firestore,
-    required this._imageService,
-  });
+  IncidentRepository({required this._firestore, required this._imageService});
 
   final FirebaseFirestore _firestore;
   final ImageService _imageService;

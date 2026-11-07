@@ -20,8 +20,7 @@ class FakeImageService extends ImageService {
     required String incidentId,
     required String ownerId,
     required Uint8List bytes,
-  }) async =>
-      'fake/$incidentId';
+  }) async => 'fake/$incidentId';
 
   @override
   Future<Uint8List?> loadImage(String incidentId) async => null;
@@ -89,8 +88,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('shows every error when submitting an empty form',
-      (tester) async {
+  testWidgets('shows every error when submitting an empty form', (
+    tester,
+  ) async {
     await pumpReportScreen(tester);
 
     await tapSubmit(tester);

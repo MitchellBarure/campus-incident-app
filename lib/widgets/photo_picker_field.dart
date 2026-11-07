@@ -60,9 +60,9 @@ class PhotoPickerField extends StatelessWidget {
           Text(
             'Add a photo (optional)',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

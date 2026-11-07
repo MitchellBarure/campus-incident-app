@@ -83,8 +83,10 @@ class _DetailsBody extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     // Notes written by staff (anyone other than the reporter).
     final staffNotes = incident.statusHistory
-        .where((change) =>
-            change.note != null && change.changedBy != incident.reporterId)
+        .where(
+          (change) =>
+              change.note != null && change.changedBy != incident.reporterId,
+        )
         .toList();
 
     return ListView(
@@ -228,8 +230,11 @@ class _PhotoPlaceholder extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.broken_image_outlined,
-              size: 40, color: AppColors.primary),
+          const Icon(
+            Icons.broken_image_outlined,
+            size: 40,
+            color: AppColors.primary,
+          ),
           const SizedBox(height: 8),
           const Text('Photo unavailable'),
           if (onRetry != null)
@@ -258,9 +263,7 @@ class _SectionCard extends StatelessWidget {
             if (title != null) ...[
               Text(
                 title!,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
+                style: Theme.of(context).textTheme.titleSmall
                     ?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
@@ -342,8 +345,11 @@ class _StaffNote extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.sticky_note_2_outlined,
-              size: 20, color: AppColors.primary),
+          const Icon(
+            Icons.sticky_note_2_outlined,
+            size: 20,
+            color: AppColors.primary,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

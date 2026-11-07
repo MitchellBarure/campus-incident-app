@@ -50,10 +50,7 @@ class _ProfileError extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          OutlinedButton(
-            onPressed: onSignOut,
-            child: const Text('Sign out'),
-          ),
+          OutlinedButton(onPressed: onSignOut, child: const Text('Sign out')),
         ],
       ),
     );

@@ -61,8 +61,10 @@ void main() {
     });
 
     test('keeps only the chosen status', () {
-      final result =
-          filterIncidents(incidents, status: IncidentStatus.inProgress);
+      final result = filterIncidents(
+        incidents,
+        status: IncidentStatus.inProgress,
+      );
       expect(result.map((i) => i.id), ['b', 'c']);
     });
   });
@@ -97,14 +99,13 @@ void main() {
     });
 
     test('search looks at location and description too', () {
-      expect(
-        filterIncidents(mixed, query: 'block b').map((i) => i.id),
-        ['tap', 'chair'],
-      );
-      expect(
-        filterIncidents(mixed, query: 'corridor').map((i) => i.id),
-        ['light'],
-      );
+      expect(filterIncidents(mixed, query: 'block b').map((i) => i.id), [
+        'tap',
+        'chair',
+      ]);
+      expect(filterIncidents(mixed, query: 'corridor').map((i) => i.id), [
+        'light',
+      ]);
     });
 
     test('search matches the category label', () {
@@ -113,8 +114,10 @@ void main() {
     });
 
     test('category filter keeps only that category', () {
-      final result =
-          filterIncidents(mixed, category: IncidentCategory.electricity);
+      final result = filterIncidents(
+        mixed,
+        category: IncidentCategory.electricity,
+      );
       expect(result.map((i) => i.id), ['light']);
     });
 

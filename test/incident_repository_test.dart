@@ -77,24 +77,25 @@ void main() {
     );
   }
 
-  test('createIncident saves a submitted incident with one history entry',
-      () async {
-    final id = await createSample(title: '  Leaking tap  ');
+  test(
+    'createIncident saves a submitted incident with one history entry',
+    () async {
+      final id = await createSample(title: '  Leaking tap  ');
 
-    final doc = await firestore.collection('incidents').doc(id).get();
-    final data = doc.data()!;
+      final doc = await firestore.collection('incidents').doc(id).get();
+      final data = doc.data()!;
 
-    expect(data['title'], 'Leaking tap'); // trimmed
-    expect(data['status'], 'submitted');
-    expect(data['category'], 'water');
-    expect(data['reporterId'], 'student-1');
-    expect(data['hasImage'], isFalse);
-    expect(data['statusHistory'], hasLength(1));
-    expect(data['statusHistory'][0]['status'], 'submitted');
-  });
+      expect(data['title'], 'Leaking tap'); // trimmed
+      expect(data['status'], 'submitted');
+      expect(data['category'], 'water');
+      expect(data['reporterId'], 'student-1');
+      expect(data['hasImage'], isFalse);
+      expect(data['statusHistory'], hasLength(1));
+      expect(data['statusHistory'][0]['status'], 'submitted');
+    },
+  );
 
-  test('createIncident saves the photo and thumbnail when given one',
-      () async {
+  test('createIncident saves the photo and thumbnail when given one', () async {
     final image = CompressedImage(
       fullBytes: Uint8List.fromList([1, 2, 3]),
       thumbnailBytes: Uint8List.fromList([4, 5]),
@@ -108,22 +109,24 @@ void main() {
     expect(imageService.saved[id], image.fullBytes);
   });
 
-  test('createIncident keeps the report but reports a failed photo upload',
-      () async {
-    imageService.shouldFail = true;
-    final image = CompressedImage(
-      fullBytes: Uint8List.fromList([1]),
-      thumbnailBytes: Uint8List.fromList([2]),
-    );
+  test(
+    'createIncident keeps the report but reports a failed photo upload',
+    () async {
+      imageService.shouldFail = true;
+      final image = CompressedImage(
+        fullBytes: Uint8List.fromList([1]),
+        thumbnailBytes: Uint8List.fromList([2]),
+      );
 
-    await expectLater(
-      createSample(image: image),
-      throwsA(isA<PhotoUploadFailure>()),
-    );
+      await expectLater(
+        createSample(image: image),
+        throwsA(isA<PhotoUploadFailure>()),
+      );
 
-    final incidents = await firestore.collection('incidents').get();
-    expect(incidents.docs, hasLength(1));
-  });
+      final incidents = await firestore.collection('incidents').get();
+      expect(incidents.docs, hasLength(1));
+    },
+  );
 
   test('watchMyIncidents only returns the given user\'s reports', () async {
     await createSample(reporter: student, title: 'Mine');

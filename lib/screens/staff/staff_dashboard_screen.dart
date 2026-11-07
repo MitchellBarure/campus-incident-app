@@ -63,9 +63,7 @@ class StaffDashboardScreen extends ConsumerWidget {
           ],
           Text(
             'All Reports',
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           const IncidentFilterBar(),

@@ -27,12 +27,21 @@ class SummaryGrid extends StatelessWidget {
         color: AppColors.primary,
         backgroundColor: AppColors.primaryLight,
       ),
-      _statusCard(IncidentStatus.submitted, counts.submitted,
-          Icons.schedule_outlined),
-      _statusCard(IncidentStatus.inProgress, counts.inProgress,
-          Icons.build_circle_outlined),
-      _statusCard(IncidentStatus.resolved, counts.resolved,
-          Icons.check_circle_outline),
+      _statusCard(
+        IncidentStatus.submitted,
+        counts.submitted,
+        Icons.schedule_outlined,
+      ),
+      _statusCard(
+        IncidentStatus.inProgress,
+        counts.inProgress,
+        Icons.build_circle_outlined,
+      ),
+      _statusCard(
+        IncidentStatus.resolved,
+        counts.resolved,
+        Icons.check_circle_outline,
+      ),
     ];
 
     return GridView.count(

@@ -30,10 +30,8 @@ class StatusChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             status.label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: status.color,
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(color: status.color, fontWeight: FontWeight.w600),
           ),
         ],
       ),
