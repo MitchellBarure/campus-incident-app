@@ -1,17 +1,145 @@
-# campus_incident_app
+# ALU Campus Incidents
 
-A new Flutter project.
+A Flutter app where students report campus issues (leaks, broken furniture,
+electrical faults, safety hazards...) and staff track and resolve them.
 
-## Getting Started
+Built for the Mobile Application Development module at African Leadership
+University.
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+| Students | Staff |
+| --- | --- |
+| Sign up / log in (email + password) | Staff dashboard with counts by status |
+| Report an issue: category, title, description, location, optional photo | Every report, newest first, with search and filters |
+| Home: greeting, report banner, summary cards, recent reports | Update a report's status with an optional note |
+| Browse all reports with search, status and category filters | Same details screen, plus an **Update Status** button |
+| My Reports with stats and status filter | |
+| Report details with photo, status timeline and staff notes | |
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Every screen that loads data has loading, error (with retry) and empty states.
+All data updates live (Firestore streams), so there is no pull-to-refresh.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Tech stack
+
+- **Flutter** (Material 3, ALU brand colours, Poppins font)
+- **Riverpod** (`flutter_riverpod`, no code generation) for state management
+- **go_router** with a redirect based on login state and role
+- **Firebase Authentication** (email + password)
+- **Cloud Firestore** for all data, protected by security rules
+- **Photos** are compressed and stored as base64 in Firestore (see below)
+
+## Project structure
+
+```
+lib/
+  main.dart, app.dart        App start-up, Firebase init, router + theme
+  core/                      Theme (colours), router, validators, formatters, filters
+  models/                    AppUser, Incident, IncidentCategory, IncidentStatus, StatusChange
+  services/                  AuthRepository, IncidentRepository, ImageService, seed data
+  providers/                 Riverpod providers (auth, incidents, filters)
+  screens/                   auth/, student/, shared/, staff/
+  widgets/                   Reusable UI: cards, chips, timeline, empty/error/loading views
+test/                        Unit and widget tests
+firestore.rules              Security rules
+firestore.indexes.json       Composite index for "My Reports"
+```
+
+## Setup
+
+### 1. Requirements
+
+- Flutter (stable) with Dart 3.13 or newer
+- An Android emulator or device
+- Node.js, for the Firebase CLI (`npm install -g firebase-tools`)
+
+### 2. Firebase project
+
+This repo is already connected to the Firebase project
+`campus-incident-app-9d1f2` (see `lib/firebase_options.dart`). To use your own
+project instead, run `flutterfire configure` and update `.firebaserc`.
+
+In the [Firebase Console](https://console.firebase.google.com/):
+
+1. **Build → Authentication → Sign-in method → Email/Password → Enable → Save.**
+2. **Build → Firestore Database → Create database** (if it doesn't exist yet).
+
+### 3. Deploy the security rules and index
+
+```bash
+firebase login
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+This uploads `firestore.rules` and creates the `reporterId + createdAt`
+index used by My Reports. The index can take a few minutes to build.
+
+### 4. Run the app
+
+```bash
+flutter pub get
+flutter run
+```
+
+## Making a staff account
+
+Everyone signs up as a **student**; the security rules don't let anyone make
+themselves staff. To promote a user:
+
+1. Sign up in the app with the account you want to be staff.
+2. Firebase Console → **Firestore Database → Data → `users`**.
+3. Click the document whose `email` matches that account.
+4. Click the `role` field's value, change `student` to `staff`, click **Update**.
+5. The app switches to the Staff Dashboard straight away (no restart needed).
+
+## Sample data
+
+In **debug** builds, the Profile screen has an **Add 8 sample reports** button
+(hidden in release builds). Use it while logged in as **staff** to get reports
+in every status with timeline notes; as a student, all 8 are "Submitted".
+
+## Photos and the Spark (free) plan
+
+Since February 2026 Firebase Storage requires the paid Blaze plan, so photos are
+stored in Firestore instead:
+
+- The photo is resized to 1024px wide and compressed to JPEG (≤ 700 KB, because a
+  Firestore document is limited to 1 MiB and base64 adds about 33%).
+- The full photo is saved in `incident_images/{incidentId}` and only loaded on the
+  details screen. A ~200px thumbnail is stored on the incident for list cards.
+- A complete Firebase Storage implementation (`FirebaseStorageImageService`) is
+  included but switched off. Set `useFirebaseStorage = true` in
+  `lib/core/constants.dart` to use it on a Blaze project.
+
+## Security rules summary
+
+- **users**: read your own profile (staff can read all); create your own only as a
+  `student`; never change your own role.
+- **incidents**: any signed-in user can read. Create only as yourself with status
+  `submitted` and valid fields. Only staff can change `status`, `statusHistory`
+  and `updatedAt` (one new timeline entry at a time). No deletes.
+- **incident_images**: signed-in read; only the incident's reporter can add the
+  photo, and it must be under ~1 MB.
+
+## Tests
+
+```bash
+flutter test
+```
+
+| File | What it covers |
+| --- | --- |
+| `validators_test.dart` | Sign-up and report form validation |
+| `app_user_test.dart`, `incident_model_test.dart` | Models' `fromMap` / `toMap` |
+| `auth_redirect_test.dart` | Role-based routing rules, friendly auth errors |
+| `incident_repository_test.dart` | Create, stream and update incidents (fake Firestore) |
+| `image_compression_test.dart` | Photo resizing, thumbnails and the size limit |
+| `filter_logic_test.dart`, `filter_providers_test.dart` | Search, filters and status counts |
+| `status_timeline_test.dart` | Timeline steps and timeline widget |
+| `report_form_test.dart` | Report form validation and submit (widget test) |
+| `update_status_test.dart` | Students can't see Update Status; staff can update (widget test) |
+| `seed_data_test.dart` | Sample data helper |
+
+## Screenshots
+
+Screenshots of each screen are in [`docs/screenshots/`](docs/screenshots/).
