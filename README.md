@@ -109,6 +109,10 @@ stored in Firestore instead:
 - A complete Firebase Storage implementation (`FirebaseStorageImageService`) is
   included but switched off. Set `useFirebaseStorage = true` in
   `lib/core/constants.dart` to use it on a Blaze project.
+- Its security rules are in `storage.rules`: signed-in users can read; only the
+  incident's reporter can upload, once, as a JPEG under 700 KB. Deploy them on a
+  Blaze project with `firebase deploy --only storage` after adding
+  `"storage": { "rules": "storage.rules" }` to `firebase.json`.
 
 ## Security rules summary
 
