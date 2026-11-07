@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Rules for FirebaseStorageImageService (switched off on the Spark plan).
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Photos are saved as incidents/{incidentId}.jpg.
+    match /incidents/{fileName} {
+      allow read: if request.auth != null;
+
+      // Only the incident's reporter may upload, once, as a JPEG under 700 KB.
+      allow create: if request.auth != null
+        && fileName.matches('[^.]+\\.jpg')
+        && request.resource.size < 700 * 1024
+        && request.resource.contentType == 'image/jpeg'
+        && request.resource.metadata.ownerId == request.auth.uid
+        && firestore.get(/databases/(default)/documents/incidents/$(fileName.split('\\.')[0])).data.reporterId == request.auth.uid;
+
+      // No replacing or deleting photos from the app.
+      allow update, delete: if false;
+    }
+  }
+}
