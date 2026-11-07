@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo of the campus issue you are reporting.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Attach a photo of the campus issue you are reporting.</string>
 </dict>
 </plist>

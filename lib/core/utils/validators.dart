@@ -49,6 +49,38 @@ class Validators {
     return null;
   }
 
+  // Limits for the Report Incident form.
+  static const int maxTitleLength = 80;
+  static const int minDescriptionLength = 10;
+
+  static String? incidentTitle(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter a title';
+    }
+    if (value.trim().length > maxTitleLength) {
+      return 'Title must be $maxTitleLength characters or fewer';
+    }
+    return null;
+  }
+
+  static String? description(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please describe the issue';
+    }
+    if (value.trim().length < minDescriptionLength) {
+      return 'Please add a bit more detail (at least '
+          '$minDescriptionLength characters)';
+    }
+    return null;
+  }
+
+  static String? location(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please say where the issue is';
+    }
+    return null;
+  }
+
   /// Checks the "confirm password" field matches the first password.
   static String? confirmPassword(String? value, String password) {
     if (value == null || value.isEmpty) {
