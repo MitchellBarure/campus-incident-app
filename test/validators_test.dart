@@ -50,6 +50,25 @@ void main() {
     });
   });
 
+  group('report form validators', () {
+    test('incidentTitle requires text and limits length', () {
+      expect(Validators.incidentTitle(''), isNotNull);
+      expect(Validators.incidentTitle('a' * 81), isNotNull);
+      expect(Validators.incidentTitle('Broken window'), isNull);
+    });
+
+    test('description needs at least 10 characters', () {
+      expect(Validators.description(''), isNotNull);
+      expect(Validators.description('Broken'), isNotNull);
+      expect(Validators.description('The window is cracked.'), isNull);
+    });
+
+    test('location is required', () {
+      expect(Validators.location('  '), isNotNull);
+      expect(Validators.location('Library'), isNull);
+    });
+  });
+
   group('Validators.confirmPassword', () {
     test('rejects an empty or different confirmation', () {
       expect(Validators.confirmPassword('', 'secret1'), isNotNull);
