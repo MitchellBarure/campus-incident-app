@@ -94,8 +94,10 @@ service cloud.firestore {
 
       allow update: if isStaffStatusUpdate() || isReporterEdit();
 
-      // Reports are never deleted from the app.
-      allow delete: if false;
+      // The reporter may withdraw a report until staff start on it.
+      allow delete: if isVerifiedAluUser()
+        && request.auth.uid == resource.data.reporterId
+        && resource.data.status == "submitted";
 
       // Staff may change only the status, add ONE timeline entry, and
       // bump updatedAt.
@@ -107,13 +109,19 @@ service cloud.firestore {
                == resource.data.statusHistory.size() + 1;
       }
 
-      // The reporter may fix the title/description while it is still
-      // "submitted" (not used by the app yet, allowed by the spec).
+      // The reporter may edit the details while it is still "submitted".
       function isReporterEdit() {
         return isVerifiedAluUser()
           && request.auth.uid == resource.data.reporterId
           && resource.data.status == "submitted"
-          && changedKeys().hasOnly(["title", "description", "updatedAt"]);
+          && changedKeys().hasOnly(
+               ["title", "description", "category", "location", "updatedAt"])
+          && request.resource.data.title is string
+          && request.resource.data.title.size() > 0
+          && request.resource.data.title.size() <= 80
+          && request.resource.data.description is string
+          && request.resource.data.location is string
+          && isValidCategory(request.resource.data.category);
       }
     }
 
@@ -131,7 +139,13 @@ service cloud.firestore {
         && request.resource.data.data is string
         && request.resource.data.data.size() < 1000000;
 
-      allow update, delete: if false;
+      // Deleted with its report, while that report is still "submitted".
+      allow delete: if isVerifiedAluUser()
+        && resource.data.ownerId == request.auth.uid
+        && get(/databases/$(database)/documents/incidents/$(incidentId)).data.status
+             == "submitted";
+
+      allow update: if false;
     }
   }
 }

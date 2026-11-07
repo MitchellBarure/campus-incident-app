@@ -23,8 +23,13 @@ service firebase.storage {
         && request.resource.metadata.ownerId == request.auth.uid
         && firestore.get(/databases/(default)/documents/incidents/$(fileName.split('\\.')[0])).data.reporterId == request.auth.uid;
 
-      // No replacing or deleting photos from the app.
-      allow update, delete: if false;
+      // Deleted with its report, while that report is still "submitted".
+      allow delete: if isVerifiedAluUser()
+        && resource.metadata.ownerId == request.auth.uid
+        && firestore.get(/databases/(default)/documents/incidents/$(fileName.split('\\.')[0])).data.status == 'submitted';
+
+      // Photos can't be replaced.
+      allow update: if false;
     }
   }
 }
