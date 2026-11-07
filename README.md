@@ -5,6 +5,8 @@ electrical faults, safety hazards...) and staff track and resolve them.
 
 Built for the Mobile Application Development module.
 
+**Demo video:** https://youtu.be/WkBNH1X_d20
+
 ## Features
 
 | Students | Staff |
