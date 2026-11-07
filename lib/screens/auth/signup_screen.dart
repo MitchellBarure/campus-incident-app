@@ -19,6 +19,11 @@ class SignupScreen extends ConsumerStatefulWidget {
 
 class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  /// Errors are only checked when the user taps Submit at first. After
+  /// that, each field re-checks as it is edited, so an error disappears
+  /// as soon as it is fixed.
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -35,11 +40,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   Future<void> _submit() async {
+    setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(authRepositoryProvider).signUp(
+      await ref
+          .read(authRepositoryProvider)
+          .signUp(
             name: _nameController.text,
             email: _emailController.text,
             password: _passwordController.text,
@@ -79,6 +87,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Form(
             key: _formKey,
+            autovalidateMode: _autovalidateMode,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

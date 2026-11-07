@@ -76,6 +76,8 @@ class _CategoryTile extends StatelessWidget {
       button: true,
       selected: isSelected,
       label: category.label,
+      // The tile's own text would repeat the label for screen readers.
+      excludeSemantics: true,
       child: Material(
         color: isSelected
             ? AppColors.primary.withValues(alpha: 0.08)

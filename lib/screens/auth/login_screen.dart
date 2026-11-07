@@ -19,6 +19,11 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  /// Errors are only checked when the user taps Submit at first. After
+  /// that, each field re-checks as it is edited, so an error disappears
+  /// as soon as it is fixed.
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -31,12 +36,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
     // Runs every field's validator and shows the error messages.
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(authRepositoryProvider).signIn(
+      await ref
+          .read(authRepositoryProvider)
+          .signIn(
             email: _emailController.text,
             password: _passwordController.text,
           );
@@ -69,6 +77,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             padding: const EdgeInsets.all(20),
             child: Form(
               key: _formKey,
+              autovalidateMode: _autovalidateMode,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -133,7 +142,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     textInputAction: TextInputAction.done,
                     // On login we only check it isn't empty; the length
                     // rule matters when creating a password, not here.
-                    validator: (value) => Validators.required(value, 'Password'),
+                    validator: (value) =>
+                        Validators.required(value, 'Password'),
                   ),
                   const SizedBox(height: 24),
                   AppButton(

@@ -26,6 +26,11 @@ class ReportIncidentScreen extends ConsumerStatefulWidget {
 
 class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  /// Errors are only checked when the user taps Submit at first. After
+  /// that, each field re-checks as it is edited, so an error disappears
+  /// as soon as it is fixed.
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
@@ -65,6 +70,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
   }
 
   Future<void> _submit() async {
+    setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
     // Validate both the text fields and the category, so every problem
     // is shown at once rather than one at a time.
     final fieldsAreValid = _formKey.currentState!.validate();
@@ -73,14 +79,18 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
 
     final reporter = ref.read(currentUserProfileProvider).value;
     if (reporter == null) {
-      _showSnackBar('Please wait, your profile is still loading.',
-          isError: true);
+      _showSnackBar(
+        'Please wait, your profile is still loading.',
+        isError: true,
+      );
       return;
     }
 
     setState(() => _isSubmitting = true);
     try {
-      await ref.read(incidentRepositoryProvider).createIncident(
+      await ref
+          .read(incidentRepositoryProvider)
+          .createIncident(
             title: _titleController.text,
             description: _descriptionController.text,
             category: _category!,
@@ -137,6 +147,7 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
       body: SafeArea(
         child: Form(
           key: _formKey,
+          autovalidateMode: _autovalidateMode,
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
@@ -144,7 +155,9 @@ class _ReportIncidentScreenState extends ConsumerState<ReportIncidentScreen> {
               const SizedBox(height: 8),
               CategorySelector(
                 selected: _category,
-                errorText: _showCategoryError ? 'Please choose a category' : null,
+                errorText: _showCategoryError
+                    ? 'Please choose a category'
+                    : null,
                 onSelected: (category) => setState(() {
                   _category = category;
                   _showCategoryError = false;
@@ -213,9 +226,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(context)
-          .textTheme
-          .labelLarge
+      style: Theme.of(context).textTheme.labelLarge
           ?.copyWith(fontWeight: FontWeight.w600),
     );
   }
