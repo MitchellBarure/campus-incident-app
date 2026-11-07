@@ -26,7 +26,15 @@ final incidentRepositoryProvider = Provider<IncidentRepository>((ref) {
 });
 
 /// Every incident, newest first (Browse screen and Staff dashboard).
+///
+/// It watches the signed-in user so it restarts after every login. Without
+/// this, signing out left the old query running with no user, Firestore
+/// rejected it, and the next user saw that "permission denied" error.
 final allIncidentsProvider = StreamProvider<List<Incident>>((ref) {
+  final user = ref.watch(authStateProvider).value;
+  if (user == null) {
+    return Stream.value([]);
+  }
   return ref.watch(incidentRepositoryProvider).watchAllIncidents();
 });
 
@@ -45,14 +53,23 @@ final myIncidentsProvider = StreamProvider<List<Incident>>((ref) {
 // with a parameter.
 
 /// One incident, live. Emits null if the incident doesn't exist.
-final incidentByIdProvider =
-    StreamProvider.family<Incident?, String>((ref, incidentId) {
+final incidentByIdProvider = StreamProvider.family<Incident?, String>((
+  ref,
+  incidentId,
+) {
+  // Restart after login/logout for the same reason as allIncidentsProvider.
+  final user = ref.watch(authStateProvider).value;
+  if (user == null) {
+    return Stream.value(null);
+  }
   return ref.watch(incidentRepositoryProvider).watchIncident(incidentId);
 });
 
 /// The full-size photo for one incident, loaded only on the details
 /// screen (the lists use the small thumbnail instead).
-final incidentImageProvider =
-    FutureProvider.family<Uint8List?, String>((ref, incidentId) {
+final incidentImageProvider = FutureProvider.family<Uint8List?, String>((
+  ref,
+  incidentId,
+) {
   return ref.watch(imageServiceProvider).loadImage(incidentId);
 });
