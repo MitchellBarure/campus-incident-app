@@ -6,6 +6,14 @@ class Validators {
   // Only catches obvious typos; Firebase does the strict check.
   static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
+  /// Only ALU accounts can use the app.
+  static const aluEmailDomains = ['alustudent.com', 'alueducation.com'];
+
+  static bool isAluEmail(String email) {
+    final domain = email.trim().toLowerCase().split('@').last;
+    return aluEmailDomains.contains(domain);
+  }
+
   static String? required(String? value, String fieldName) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
@@ -29,6 +37,9 @@ class Validators {
     }
     if (!_emailPattern.hasMatch(value.trim())) {
       return 'Please enter a valid email address';
+    }
+    if (!isAluEmail(value)) {
+      return 'Use your ALU email (@alustudent.com or @alueducation.com)';
     }
     return null;
   }

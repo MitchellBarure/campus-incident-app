@@ -25,7 +25,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 /// The signed-in Firebase user, or null.
 /// A StreamProvider exposes a stream's latest value as loading/data/error.
 final authStateProvider = StreamProvider<User?>((ref) {
-  return ref.watch(authRepositoryProvider).authStateChanges();
+  return ref.watch(authRepositoryProvider).userChanges();
 });
 
 /// The signed-in user's profile (users/{uid}), or null while signed out.

@@ -7,6 +7,7 @@ import '../../providers/auth_providers.dart';
 import '../../screens/auth/login_screen.dart';
 import '../../screens/auth/signup_screen.dart';
 import '../../screens/auth/splash_screen.dart';
+import '../../screens/auth/verify_email_screen.dart';
 import '../../screens/shared/browse_reports_screen.dart';
 import '../../screens/shared/incident_details_screen.dart';
 import '../../screens/shared/profile_screen.dart';
@@ -20,6 +21,7 @@ class AppRoutes {
   static const splash = '/splash';
   static const login = '/login';
   static const signup = '/signup';
+  static const verifyEmail = '/verify-email';
 
   // Student tabs (bottom navigation bar).
   static const home = '/home';
@@ -53,6 +55,7 @@ String? authRedirect({
   required bool isAuthLoading,
   required bool isLoggedIn,
   required UserRole? role,
+  bool isEmailVerified = true,
 }) {
   final onAuthPage =
       location == AppRoutes.login || location == AppRoutes.signup;
@@ -68,17 +71,23 @@ String? authRedirect({
     return onAuthPage ? null : AppRoutes.login;
   }
 
-  // 3. Logged in, role still loading: wait on the splash.
+  // 3. Unverified email: only the verify page.
+  final onVerifyPage = location == AppRoutes.verifyEmail;
+  if (!isEmailVerified) {
+    return onVerifyPage ? null : AppRoutes.verifyEmail;
+  }
+
+  // 4. Logged in, role still loading: wait on the splash.
   if (role == null) {
     return onSplash ? null : AppRoutes.splash;
   }
 
-  // 4. Send each role to its own start page.
+  // 5. Send each role to its own start page.
   final startPage = role == UserRole.staff
       ? AppRoutes.staffDashboard
       : AppRoutes.home;
 
-  if (onAuthPage || onSplash) {
+  if (onAuthPage || onSplash || onVerifyPage) {
     return startPage;
   }
   if (role == UserRole.student &&
@@ -112,6 +121,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         location: state.matchedLocation,
         isAuthLoading: authState.isLoading,
         isLoggedIn: authState.value != null,
+        isEmailVerified: authState.value?.emailVerified ?? false,
         role: profile?.role,
       );
     },
@@ -127,6 +137,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.signup,
         builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.verifyEmail,
+        builder: (context, state) => const VerifyEmailScreen(),
       ),
 
       // ShellRoute keeps the bottom bar visible while tabs change.

@@ -49,7 +49,9 @@ class AuthRepository {
   CollectionReference<Map<String, dynamic>> get _users =>
       _firestore.collection('users');
 
-  Stream<User?> authStateChanges() => _auth.authStateChanges();
+  /// Like authStateChanges, but also emits after reload(), so the app
+  /// notices when the email has been verified.
+  Stream<User?> userChanges() => _auth.userChanges();
 
   /// The profile at users/{uid}, or null until it exists.
   Stream<AppUser?> watchUserProfile(String uid) {
@@ -83,6 +85,11 @@ class AuthRepository {
         ...newUser.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
       });
+
+      // If this fails, the verify screen has a Resend button.
+      try {
+        await credential.user!.sendEmailVerification();
+      } on FirebaseAuthException catch (_) {}
     } on FirebaseAuthException catch (e) {
       throw AuthFailure(friendlyAuthMessage(e.code));
     } on FirebaseException catch (_) {
@@ -103,6 +110,26 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw AuthFailure(friendlyAuthMessage(e.code));
     }
+  }
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      await _auth.currentUser?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      throw AuthFailure(friendlyAuthMessage(e.code));
+    }
+  }
+
+  /// Checks with Firebase whether the email is now verified.
+  Future<bool> checkEmailVerified() async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    await user.reload();
+    final refreshed = _auth.currentUser;
+    if (refreshed == null || !refreshed.emailVerified) return false;
+    // A fresh token carries email_verified = true to the security rules.
+    await refreshed.getIdToken(true);
+    return true;
   }
 
   Future<void> signOut() => _auth.signOut();
