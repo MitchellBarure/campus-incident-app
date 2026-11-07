@@ -14,6 +14,7 @@ Built for the Mobile Application Development module.
 | Home: greeting, report banner, summary cards, recent reports | Update a report's status with an optional note |
 | Browse all reports with search, status and category filters | Same details screen, plus an **Update Status** button |
 | My Reports with stats and status filter | |
+| Edit or delete your own report while it is still Submitted | |
 | Report details with photo, status timeline and staff notes | |
 
 Every screen that loads data has loading, error (with retry) and empty states.
@@ -126,9 +127,11 @@ Only users signed in with a **verified** `@alustudent.com` or
   `student` with an ALU email; never change your own role.
 - **incidents**: any verified ALU user can read. Create only as yourself with status
   `submitted` and valid fields. Only staff can change `status`, `statusHistory`
-  and `updatedAt` (one new timeline entry at a time). No deletes.
+  and `updatedAt` (one new timeline entry at a time). The reporter can edit the
+  title, description, category and location, or delete the report, only while
+  it is still `submitted`.
 - **incident_images**: verified ALU users can read; only the incident's reporter can add the
-  photo, and it must be under ~1 MB.
+  photo (under ~1 MB) or delete it with the report while it is `submitted`.
 
 ## Tests
 
@@ -141,12 +144,12 @@ flutter test
 | `validators_test.dart` | Sign-up (incl. ALU email only) and report form validation |
 | `app_user_test.dart`, `incident_model_test.dart` | Models' `fromMap` / `toMap` |
 | `auth_redirect_test.dart` | Role-based routing, email verification redirect, friendly auth errors |
-| `incident_repository_test.dart` | Create, stream and update incidents (fake Firestore) |
+| `incident_repository_test.dart` | Create, stream, update, edit and delete incidents (fake Firestore) |
 | `image_compression_test.dart` | Photo resizing, thumbnails and the size limit |
 | `filter_logic_test.dart`, `filter_providers_test.dart` | Search, filters and status counts |
 | `status_timeline_test.dart` | Timeline steps and timeline widget |
-| `report_form_test.dart` | Report form validation and submit (widget test) |
-| `update_status_test.dart` | Students can't see Update Status; staff can update (widget test) |
+| `report_form_test.dart` | Report form validation, submit and edit mode (widget test) |
+| `update_status_test.dart` | Update Status for staff only; Edit/Delete for the reporter only (widget test) |
 | `seed_data_test.dart` | Sample data helper |
 
 ## Screenshots
