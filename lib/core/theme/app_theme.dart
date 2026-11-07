@@ -86,14 +86,28 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
+      // The raised center "Report" button uses the ALU red accent.
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,
         shape: CircleBorder(),
       ),
       bottomAppBarTheme: const BottomAppBarThemeData(
         color: AppColors.surface,
         elevation: 8,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.surface,
+        selectedColor: AppColors.primaryLight,
+        side: const BorderSide(color: AppColors.border),
+        shape: const StadiumBorder(),
+        labelStyle: baseTextTheme.labelLarge?.copyWith(
+          color: AppColors.textPrimary,
+        ),
+        checkmarkColor: AppColors.primary,
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
